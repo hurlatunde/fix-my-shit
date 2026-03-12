@@ -10,6 +10,7 @@ import { runExecutePhase } from './commands/execute-phase.js';
 import { runVerifyWork } from './commands/verify-work.js';
 import { runCompletePhase, runCompleteMilestone } from './commands/complete-phase.js';
 import { runQuick } from './commands/quick.js';
+import { withHooks } from './hooks/index.js';
 
 const program = new Command();
 
@@ -30,49 +31,75 @@ program
   .description('Start a new project/feature (questions → research → requirements → roadmap)')
   .option('--prd <path>', 'Use PRD/spec file instead of questioning')
   .action(async (opts: { prd?: string }) => {
-    await runNewProject(resolveFmsRoot(), opts.prd ? { prdPath: opts.prd } : undefined);
+    const root = resolveFmsRoot();
+    await withHooks(
+      { fmsRoot: root, command: 'new-project' },
+      async () => runNewProject(root, opts.prd ? { prdPath: opts.prd } : undefined)
+    );
   });
 
 program
   .command('discuss-phase <phase>')
   .description('Clarify gray areas for a phase and write CONTEXT.md')
   .action(async (phase: string) => {
-    await runDiscussPhase(resolveFmsRoot(), parseInt(phase, 10));
+    const root = resolveFmsRoot();
+    const phaseNum = parseInt(phase, 10);
+    await withHooks({ fmsRoot: root, command: 'discuss-phase', phase: phaseNum }, async () =>
+      runDiscussPhase(root, phaseNum)
+    );
   });
 
 program
   .command('plan-phase <phase>')
   .description('Generate executable plans for a phase')
   .action(async (phase: string) => {
-    await runPlanPhase(resolveFmsRoot(), parseInt(phase, 10));
+    const root = resolveFmsRoot();
+    const phaseNum = parseInt(phase, 10);
+    await withHooks({ fmsRoot: root, command: 'plan-phase', phase: phaseNum }, async () =>
+      runPlanPhase(root, phaseNum)
+    );
   });
 
 program
   .command('execute-phase <phase>')
   .description('Run all plans in a phase (wave-based)')
   .action(async (phase: string) => {
-    await runExecutePhase(resolveFmsRoot(), parseInt(phase, 10));
+    const root = resolveFmsRoot();
+    const phaseNum = parseInt(phase, 10);
+    await withHooks({ fmsRoot: root, command: 'execute-phase', phase: phaseNum }, async () =>
+      runExecutePhase(root, phaseNum)
+    );
   });
 
 program
   .command('verify-work <phase>')
   .description('Manually verify phase deliverables')
   .action(async (phase: string) => {
-    await runVerifyWork(resolveFmsRoot(), parseInt(phase, 10));
+    const root = resolveFmsRoot();
+    const phaseNum = parseInt(phase, 10);
+    await withHooks({ fmsRoot: root, command: 'verify-work', phase: phaseNum }, async () =>
+      runVerifyWork(root, phaseNum)
+    );
   });
 
 program
   .command('complete-phase')
   .description('Mark current phase as done')
   .action(() => {
-    runCompletePhase(resolveFmsRoot());
+    const root = resolveFmsRoot();
+    void withHooks({ fmsRoot: root, command: 'complete-phase' }, async () => {
+      runCompletePhase(root);
+    });
   });
 
 program
   .command('complete-milestone')
   .description('Mark milestone complete and advance to next')
   .action(() => {
-    runCompleteMilestone(resolveFmsRoot());
+    const root = resolveFmsRoot();
+    void withHooks({ fmsRoot: root, command: 'complete-milestone' }, async () => {
+      runCompleteMilestone(root);
+    });
   });
 
 program
@@ -80,7 +107,10 @@ program
   .description('Quick ad-hoc task (bug fix, small feature)')
   .action(async (taskParts?: string[]) => {
     const task = taskParts?.length ? taskParts.join(' ').trim() : undefined;
-    await runQuick(resolveFmsRoot(), task);
+    const root = resolveFmsRoot();
+    await withHooks({ fmsRoot: root, command: 'quick', args: { task } }, async () =>
+      runQuick(root, task)
+    );
   });
 
 program
