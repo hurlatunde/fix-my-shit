@@ -10,6 +10,7 @@ import { runExecutePhase } from './commands/execute-phase.js';
 import { runVerifyWork } from './commands/verify-work.js';
 import { runCompletePhase, runCompleteMilestone } from './commands/complete-phase.js';
 import { runQuick } from './commands/quick.js';
+import { runStatus } from './commands/status.js';
 import { withHooks } from './hooks/index.js';
 
 const program = new Command();
@@ -116,11 +117,9 @@ program
 program
   .command('status')
   .description('Show current project/phase state')
-  .action(() => {
+  .action(async () => {
     const root = resolveFmsRoot();
-    const config = loadConfig(root);
-    console.log('fms root:', root);
-    console.log('config:', JSON.stringify(config, null, 2));
+    await runStatus(root);
   });
 
 program
@@ -146,7 +145,7 @@ program
 
 program
   .command('help [cmd]')
-  .description('Display help for a command')
+  .description('Display help for a command (use as /fms:help [command] in Cursor)')
   .action((cmd?: string) => {
     if (cmd) {
       const c = program.commands.find((c) => c.name() === cmd);
