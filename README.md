@@ -12,11 +12,33 @@ Structured, phased project management and issue resolution for Cursor, delivered
 
 You need **Node.js \(>= 18\)**.
 
-You can run fms via `npx` without a global install:
+- **One‑off via `npx`** (recommended):
 
-```bash
-npx fix-my-shit
-```
+  ```bash
+  npx fix-my-shit@latest
+  ```
+
+- **Local dev dependency**:
+
+  ```bash
+  npm install --save-dev fix-my-shit
+  ```
+
+  Then add a script in your `package.json`:
+
+  ```json
+  {
+    "scripts": {
+      "fms": "fix-my-shit"
+    }
+  }
+  ```
+
+  and run:
+
+  ```bash
+  npm run fms
+  ```
 
 On first run, fms will:
 
@@ -24,33 +46,41 @@ On first run, fms will:
 - Or a **global** fms root in your home directory \(e.g. `~/.cursor/fms/`\)
 - Create the base folder structure, config, and templates
 
-If you prefer a local install:
+---
 
-```bash
-npm install fix-my-shit --save-dev
-```
+### Usage
 
-Then use:
+- **Bootstrap a new project**:
 
-```bash
-npx fix-my-shit
-```
+  ```bash
+  fms new-project
+  # or: npx fix-my-shit new-project
+  ```
 
-or add a script in your `package.json`:
+- **Work phase‑by‑phase**:
 
-```json
-{
-  "scripts": {
-    "fms": "fix-my-shit"
-  }
-}
-```
+  ```bash
+  fms discuss-phase 1
+  fms plan-phase 1
+  fms execute-phase 1
+  fms verify-work 1
+  fms complete-phase
+  ```
 
-and run:
+- **Run a Quick Mode task**:
 
-```bash
-npm run fms
-```
+  ```bash
+  fms quick "short task description"
+  ```
+
+- **See status & config**:
+
+  ```bash
+  fms status
+  fms config
+  ```
+
+For a full mapping of **Cursor slash commands → terminal commands**, see `docs/cursor-commands.md`.
 
 ---
 
