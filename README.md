@@ -1,6 +1,18 @@
-# Fix My Shit (fms)
+<div align="center">
 
-Structured, phased project management and issue resolution for Cursor, delivered as a small Node.js CLI. fms helps you go from vague idea to verified, committed outcome using a repeatable six-phase flow, plus Quick Mode for small tasks. All artifacts are plain text (Markdown/JSON) in your fms root (e.g. `.cursor/fms/` or `~/.cursor/fms/` in global mode). Built for Cursor users; the CLI also works in a regular terminal.
+## Fix My Shit (fms)
+
+<p align="center">Structured, phased project management and issue resolution for Cursor, delivered as a small Node.js CLI. fms helps you go from vague idea to verified, committed outcome using a repeatable 6‑phase flow, plus Quick Mode for small tasks.</p>
+
+<p align="center"><strong>Initialize → Discuss → Plan → Execute → Verify → Complete</strong></p>
+
+<p align="center"><em>Plain-text artifacts in <code>.cursor/fms/</code> or <code>~/.cursor/fms/</code> · Built for Cursor, CLI works in any terminal</em></p>
+
+```bash
+npx fix-my-shit@latest
+```
+
+</div>
 
 ---
 
@@ -226,4 +238,16 @@ On first run, fms asks whether you want a **local** root (e.g. `.cursor/fms/` in
 
 ## License
 
-MIT © Hurlatunde
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Security Policy
+
+We take security seriously. See **[SECURITY.md](SECURITY.md)** for supported versions and how to report vulnerabilities. In short:
+
+1. **Do not** open a public issue for security vulnerabilities.
+2. **Email** the maintainer (see package.json or your preferred contact) with a description of the issue, steps to reproduce, and any impact assessment.
+3. We will acknowledge your report and work with you to understand and address it.
+
+We appreciate responsible disclosure and will credit reporters (unless they prefer to remain anonymous) when the issue is resolved.
