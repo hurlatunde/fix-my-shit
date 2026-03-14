@@ -1,12 +1,12 @@
 <div align="center">
 
-[![npm version](https://img.shields.io/npm/v/fix-my-shit.svg)](https://www.npmjs.com/package/fix-my-shit)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/Hurlatunde/fix-my-shit/test.yml?label=tests)](https://github.com/Hurlatunde/fix-my-shit/actions)
-[![GitHub stars](https://img.shields.io/github/stars/Hurlatunde/fix-my-shit)](https://github.com/Hurlatunde/fix-my-shit)
-
-## Fix My Shit (fms)
+## Fix My Shit
 
 <p align="center">Structured, phased project management and issue resolution for Cursor, delivered as a small Node.js CLI. fms helps you go from vague idea to verified, committed outcome using a repeatable 6‑phase flow, plus Quick Mode for small tasks.</p>
+
+[![npm version](https://img.shields.io/npm/v/fix-my-shit.svg?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/fix-my-shit)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/Hurlatunde/fix-my-shit/test.yml?label=tests?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit/actions)
+[![GitHub stars](https://img.shields.io/github/stars/Hurlatunde/fix-my-shit?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit)
 
 <p align="center"><strong>Initialize → Discuss → Plan → Execute → Verify → Complete</strong></p>
 
