@@ -35,7 +35,7 @@ function step(msg: string): void {
 }
 
 export async function runInstall(): Promise<void> {
-  console.log('\n' + chalk.bold('Fix My Shit') + ' installer\n');
+  console.log('\n' + chalk.cyan.bold('FMS') + chalk.gray(' — Fix My Shit') + ' installer\n');
 
   const choice = await promptLocation();
   console.log('\n[selected: ' + (choice === 'global' ? 'Global' : 'Local') + ']\n');
@@ -97,7 +97,7 @@ export async function runInstall(): Promise<void> {
   step('Configured context window monitor hook');
   step('Configured statusline');
 
-  console.log('\n' + chalk.bold('Fix My Shit') + ' v' + FMS_VERSION);
+  console.log('\n' + chalk.cyan.bold('FMS') + ' v' + FMS_VERSION);
   console.log('A structured workflow assistant for Cursor by Hurlatunde.\n');
   console.log('Done! Run /fms:help in Cursor to get started.\n');
 }

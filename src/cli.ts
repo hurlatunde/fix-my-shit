@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import chalk from 'chalk';
 import { resolveFmsRoot, readPrefs, writePrefs } from './path-resolver.js';
 import { loadConfig } from './config.js';
 import { runInstall } from './install.js';
@@ -157,6 +158,7 @@ program
   });
 
 async function main(): Promise<void> {
+  console.log(chalk.cyan.bold('FMS'));
   const args = process.argv.slice(2);
   if (args.length === 0) {
     await runInstall();
