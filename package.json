@@ -1,6 +1,6 @@
 {
   "name": "fix-my-shit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Structured workflow assistant for Cursor — phased project management and issue resolution",
   "type": "module",
   "main": "dist/cli.js",
@@ -8,16 +8,20 @@
     "fix-my-shit": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-core.cjs",
     "start": "node dist/cli.js",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
-    "check-npx-ready": "node scripts/check-npx-ready.js"
+    "install": "npm run build && node dist/cli.js install",
+    "check-npx-ready": "node scripts/check-npx-ready.js",
+    "deploy": "bash scripts/deploy-npm.sh",
+    "deploy:patch": "bash scripts/deploy-npm.sh patch",
+    "deploy:minor": "bash scripts/deploy-npm.sh minor",
+    "deploy:major": "bash scripts/deploy-npm.sh major"
   },
   "keywords": [
     "cursor",
     "workflow",
-    "gsd",
     "planning",
     "cli"
   ],
@@ -27,6 +31,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "ascii-art": "^2.8.5",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "inquirer": "^9.2.23"

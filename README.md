@@ -10,7 +10,7 @@
 
 <p align="center"><strong>Initialize → Discuss → Plan → Execute → Verify → Complete</strong></p>
 
-<p align="center"><em>Plain-text artifacts in <code>.cursor/fms/</code> or <code>~/.cursor/fms/</code> · Built for Cursor, CLI works in any terminal</em></p>
+<p align="center"><em>Plain-text artifacts in your chosen runtime root (e.g. <code>.cursor/fms/</code>, <code>~/.claude/fms/</code>) · Multi-runtime install, CLI works in any terminal</em></p>
 
 ```bash
 npx fix-my-shit@latest
@@ -62,13 +62,15 @@ For each area you select, it asks until you're satisfied. The output — **CONTE
 
 **`/fms:plan-phase 1`** or **`fms plan-phase 1`**
 
-The system:
+The system orchestrates three specialized agents in sequence:
 
-- **Researches** — How to implement this phase, guided by your CONTEXT.md
-- **Plans** — Creates 2–3 atomic task plans with structured format
-- **Verifies** — Checks plans against requirements, loops until they pass
+1. **Researcher** (`fms-phase-researcher`) — Investigates the domain, identifies standard stack, patterns, and pitfalls. Produces `RESEARCH.md` with confidence levels and source hierarchy.
+2. **Planner** (`fms-planner`) — Creates 2-3 atomic task plans using goal-backward methodology. Each plan has YAML frontmatter (wave, dependencies, requirements, must_haves) and structured tasks with files, action, verify, and done fields.
+3. **Checker** (`fms-plan-checker`) — Verifies plans will achieve the phase goal before execution. Checks 7 dimensions: requirement coverage, task completeness, dependency correctness, key links, scope sanity, verification derivation, and context compliance. Returns structured issues if problems are found.
 
-Each plan is small enough to run in a fresh context. No degradation, no "I'll be more concise now."
+If the checker finds issues, plans go back to the planner for targeted revision (max 3 iterations). Each plan is small enough to run in a fresh context window without quality degradation.
+
+**Flags:** `--research` (force re-research), `--skip-research`, `--skip-verify`, `--gaps` (plan fixes for verification failures)
 
 **Creates:** `phases/{phase}/{phase}-RESEARCH.md`, `phases/{phase}/{phase}-{N}-PLAN.md`
 
@@ -157,7 +159,8 @@ The assistant is much more effective when it has the right context. fms handles 
 | `REQUIREMENTS.md` | Scoped v1/v2 requirements with phase traceability |
 | `ROADMAP.md`    | Where you're going, what's done |
 | `STATE.md`      | Decisions, blockers, position — memory across sessions |
-| `PLAN.md`       | Atomic task with structure and verification steps |
+| `CONTEXT.md`    | Locked decisions, discretion areas, deferred ideas for a phase |
+| `PLAN.md`       | Atomic task with YAML frontmatter, goal-backward must_haves, and structured tasks |
 | `SUMMARY.md`    | What happened, what changed, committed to history |
 | `quick/`        | Ad-hoc task plans and summaries |
 
@@ -182,7 +185,7 @@ Each stage uses the same idea: a thin orchestrator spawns specialized agents, co
 | Stage      | Orchestrator | Agents |
 |------------|--------------|--------|
 | Research   | Coordinates, presents findings | Parallel researchers (stack, features, architecture, pitfalls) |
-| Planning   | Validates, manages iteration | Planner creates plans, checker verifies, loop until pass |
+| Planning   | Validates, manages iteration | Researcher investigates domain, planner creates plans, plan-checker verifies (7 dimensions), revision loop (max 3x) |
 | Execution  | Groups into waves, tracks progress | Executors implement (parallel where possible), fresh context per plan |
 | Verification | Presents results, routes next | Verifier checks codebase against goals, debuggers diagnose failures |
 
@@ -218,7 +221,46 @@ You need **Node.js >= 18**.
 
   Then run: `npm run fms`
 
-On first run, fms asks whether you want a **local** root (e.g. `.cursor/fms/` in the current project) or a **global** root (e.g. `~/.cursor/fms/`), then creates the folder structure, config, and templates.
+On first run, fms asks **which runtime(s)** you want to install for and whether you want a **local** or **global** install. It then installs a **full bundle** (templates, workflows, agents, hooks, references) into the chosen location — not empty folders. You can re-run the installer to add more runtimes or upgrade; any files you changed are backed up to `fms-local-patches/` before overwriting.
+
+### Supported runtimes and locations
+
+| Runtime     | Global path                    | Local path (project)   |
+|------------|--------------------------------|------------------------|
+| Cursor     | `~/.cursor/fms`                | `./.cursor/fms`        |
+| Claude Code| `~/.claude/fms`                | `./.claude/fms`        |
+| OpenCode   | `~/.config/opencode/fms`       | `./.opencode/fms`      |
+| Gemini     | `~/.gemini/fms`                | `./.gemini/fms`        |
+| Codex      | `~/.codex/fms`                 | `./.codex/fms`         |
+| Copilot    | `~/.copilot/fms`               | `./.github/fms`        |
+| Antigravity| `~/.gemini/antigravity/fms`    | `./.agent/fms`         |
+
+### Install flags
+
+Skip prompts by passing flags:
+
+```bash
+npx fix-my-shit@latest install --cursor --global
+npx fix-my-shit@latest install --claude --local
+npx fix-my-shit@latest install --all --global
+```
+
+Options: `--cursor`, `--claude`, `--opencode`, `--gemini`, `--codex`, `--copilot`, `--antigravity`, `--all`, and `--global` / `-g` / `--local` / `-l`.
+
+### Agents (runtime-specific formats)
+
+fms installs agents into `<runtime>/fms/agents/`, but **the agent file format varies by runtime**:
+
+- **Cursor / Claude / OpenCode / Gemini / Antigravity**: `agents/fms-*.md`
+- **Copilot**: `agents/fms-*.agent.md` (tool names mapped to Copilot)
+- **Codex**: `agents/fms-*.md` plus `agents/fms-*.toml` and a root `config.toml` block that registers the agents
+
+If you edit installed agents locally and reinstall, your modified versions are backed up under `fms-local-patches/` before overwriting.
+
+### Manifest and local patches
+
+- **`fms-file-manifest.json`** — Records every installed file and its hash. Used to detect which files you changed when you re-run the installer.
+- **`fms-local-patches/`** — If you re-install and had modified any installed files, those versions are copied here before overwriting. A `backup-meta.json` file lists what was backed up so you can compare or reapply changes after upgrading.
 
 ---
 
@@ -227,7 +269,7 @@ On first run, fms asks whether you want a **local** root (e.g. `.cursor/fms/` in
 - **Language:** TypeScript  
 - **Runtime:** Node.js >= 18  
 - **CLI:** commander, inquirer, chalk  
-- **Artifacts:** Markdown/JSON in `.cursor/fms/` or `~/.cursor/fms/`
+- **Artifacts:** Markdown/JSON in the installed runtime root (e.g. `.cursor/fms/`, `~/.claude/fms/` depending on install choice)
 
 ---
 

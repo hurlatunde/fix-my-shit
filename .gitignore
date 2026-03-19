@@ -26,3 +26,9 @@ coverage
 
 # Misc build artifacts
 *.tsbuildinfo
+/.agent
+/.claude
+/.codex
+/.github
+/.opencode
+/codebase

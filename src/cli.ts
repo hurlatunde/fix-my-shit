@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import chalk from 'chalk';
 import { resolveFmsRoot, readPrefs, writePrefs } from './path-resolver.js';
 import { loadConfig } from './config.js';
 import { runInstall } from './install.js';
@@ -23,9 +22,32 @@ program
 
 program
   .command('install')
-  .description('Install fms to .cursor/fms (local or global)')
-  .action(async () => {
-    await runInstall();
+  .description('Install fms to selected runtime(s) (local or global)')
+  .option('--cursor', 'Install for Cursor')
+  .option('--claude', 'Install for Claude Code')
+  .option('--opencode', 'Install for OpenCode')
+  .option('--gemini', 'Install for Gemini')
+  .option('--codex', 'Install for Codex')
+  .option('--copilot', 'Install for Copilot')
+  .option('--antigravity', 'Install for Antigravity')
+  .option('--all', 'Install for all supported runtimes')
+  .option('--global', 'Install globally')
+  .option('-g', 'Install globally')
+  .option('--local', 'Install locally')
+  .option('-l', 'Install locally')
+  .action(async (opts: {
+    cursor?: boolean;
+    claude?: boolean;
+    opencode?: boolean;
+    gemini?: boolean;
+    codex?: boolean;
+    copilot?: boolean;
+    antigravity?: boolean;
+    all?: boolean;
+    global?: boolean;
+    local?: boolean;
+  }) => {
+    await runInstall(opts);
   });
 
 program
@@ -158,10 +180,9 @@ program
   });
 
 async function main(): Promise<void> {
-  console.log(chalk.cyan.bold('FMS'));
   const args = process.argv.slice(2);
   if (args.length === 0) {
-    await runInstall();
+    await runInstall({});
     return;
   }
   program.parse();
