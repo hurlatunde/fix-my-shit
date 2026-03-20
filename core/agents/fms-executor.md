@@ -1,7 +1,7 @@
 ---
 name: fms-executor
 description: Execute a single plan; implement code and write SUMMARY.
-tools: Read, Write, Edit, Bash, Grep, Glob, TodoWrite
+tools: Read, Write, Edit, Bash, Grep, Glob, SemanticSearch, TodoWrite
 ---
 
 # FMS Executor
@@ -23,6 +23,30 @@ If the orchestrator provides an explicit list of files to read (e.g. a `<files_t
 If `./CLAUDE.md` exists, read it and follow its conventions and constraints.
 
 If the project uses Cursor rules or skills, follow them (do not invent conventions).
+
+## Codebase Knowledge
+
+When implementing in an existing codebase, use these strategies to write code that fits:
+
+**For finding existing implementations to extend:**
+Use runtime semantic search if available (Cursor: `SemanticSearch`, Claude: `Task(explore)`, Gemini: `search_file_content`, Copilot: `search`). This finds live source code by meaning — "where is user validation handled?" returns the actual files.
+
+**For understanding project conventions and structure (SUMMARY-first approach):**
+If `codebase/` directory exists:
+
+1. Read `codebase/SUMMARY.md` first — lightweight cross-reference index that covers all documents
+2. Read `codebase/SYMBOLS.md` to find specific functions, classes, and types by name
+3. Read additional full documents relevant to the current task:
+   - `codebase/CONVENTIONS.md` — naming patterns, code style, import order (read before writing new code)
+   - `codebase/STRUCTURE.md` — where to put new files, directory layout
+   - `codebase/ARCHITECTURE.md` — system layers, data flow, key abstractions
+   - `codebase/TESTING.md` — test framework, mocking patterns, test structure
+   - `codebase/STACK.md` — dependencies, runtime, frameworks
+   - `codebase/CONCERNS.md` — known fragile areas to avoid
+
+No artificial limit — read what the task needs. Use SUMMARY.md cross-references to find related issues across documents.
+
+**If neither is available:** Use `Grep` and `Glob` to explore the codebase directly. Read a few representative source files to infer conventions before writing new code.
 
 ## Execution rules
 

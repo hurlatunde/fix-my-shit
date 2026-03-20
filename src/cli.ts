@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import path from 'path';
 import { Command } from 'commander';
 import { resolveFmsRoot, readPrefs, writePrefs } from './path-resolver.js';
 import { loadConfig } from './config.js';
@@ -11,6 +12,9 @@ import { runVerifyWork } from './commands/verify-work.js';
 import { runCompletePhase, runCompleteMilestone } from './commands/complete-phase.js';
 import { runQuick } from './commands/quick.js';
 import { runStatus } from './commands/status.js';
+import { runIndexCodebase } from './commands/index-codebase.js';
+import { runQueryCodebase } from './commands/query-codebase.js';
+import { runRefreshCodebase } from './commands/refresh-codebase.js';
 import { withHooks } from './hooks/index.js';
 
 const program = new Command();
@@ -164,6 +168,35 @@ program
       console.log('Current path:', root);
       console.log('Preference:', preference);
     }
+  });
+
+program
+  .command('index-codebase')
+  .description('Build RAG index from codebase/ analysis documents')
+  .action(async () => {
+    const codebaseDir = path.join(process.cwd(), 'codebase');
+    await runIndexCodebase(codebaseDir);
+  });
+
+program
+  .command('query [question...]')
+  .description('Query the codebase RAG index with a natural language question')
+  .action(async (questionParts?: string[]) => {
+    const question = questionParts?.length ? questionParts.join(' ').trim() : '';
+    if (!question) {
+      console.log('Usage: fms query "your question here"');
+      return;
+    }
+    const codebaseDir = path.join(process.cwd(), 'codebase');
+    await runQueryCodebase(codebaseDir, question);
+  });
+
+program
+  .command('refresh-codebase')
+  .description('Detect codebase drift since last mapping and rebuild RAG index')
+  .action(async () => {
+    const codebaseDir = path.join(process.cwd(), 'codebase');
+    await runRefreshCodebase(codebaseDir);
   });
 
 program

@@ -2,15 +2,15 @@
 
 ## Fix My Shit
 
-<p align="center">Structured, phased project management and issue resolution for Cursor, delivered as a small Node.js CLI. fms helps you go from vague idea to verified, committed outcome using a repeatable 6‑phase flow, plus Quick Mode for small tasks.</p>
+<p align="center">Structured, phased project management and issue resolution for AI coding assistants, delivered as a small Node.js CLI. fms helps you go from vague idea to verified, committed outcome using a repeatable 6‑phase flow, plus Quick Mode for small tasks and Codebase Mapping for deep project understanding.</p>
 
 [![npm version](https://img.shields.io/npm/v/fix-my-shit.svg?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/fix-my-shit)
 [![GitHub Actions](https://img.shields.io/github/actions/workflow/status/Hurlatunde/fix-my-shit/test.yml?label=tests?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit/actions)
 [![GitHub stars](https://img.shields.io/github/stars/Hurlatunde/fix-my-shit?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit)
 
-<p align="center"><strong>Initialize → Discuss → Plan → Execute → Verify → Complete</strong></p>
+<p align="center"><strong>Map → Initialize → Discuss → Plan → Execute → Verify → Complete</strong></p>
 
-<p align="center"><em>Plain-text artifacts in your chosen runtime root (e.g. <code>.cursor/fms/</code>, <code>~/.claude/fms/</code>) · Multi-runtime install, CLI works in any terminal</em></p>
+<p align="center"><em>Plain-text artifacts in your chosen runtime root (e.g. <code>.cursor/fms/</code>, <code>~/.claude/fms/</code>) · Multi-runtime install · Optional semantic search via RAG</em></p>
 
 ```bash
 npx fix-my-shit@latest
@@ -22,7 +22,22 @@ npx fix-my-shit@latest
 
 ## How It Works
 
-Run fms from your project root so it can use your Git repo and Cursor context. Then **new-project** understands where you're working — questions focus on what you're adding, and planning loads your patterns.
+Run fms from your project root so it can use your Git repo and AI runtime context. Then commands understand where you're working — questions focus on what you're adding, and planning loads your patterns.
+
+### 0. Map Codebase (Brownfield Projects)
+
+**`/fms:map-codebase`** or **`fms map-codebase`**
+
+For existing codebases, start here. The system spawns 4 parallel mapper agents that analyze your project and write structured documents:
+
+- **Tech** — Languages, runtime, frameworks, dependencies → `STACK.md`, `INTEGRATIONS.md`
+- **Architecture** — Patterns, layers, data flow, symbol index → `ARCHITECTURE.md`, `STRUCTURE.md`, `SYMBOLS.md`
+- **Quality** — Code style, naming, testing patterns → `CONVENTIONS.md`, `TESTING.md`
+- **Concerns** — Tech debt, bugs, security, fragile areas → `CONCERNS.md`
+
+A 5th agent then reads all documents and generates a cross-reference index (`SUMMARY.md`). The result is 9 documents that other agents reference when planning and executing — they know your patterns, your file structure, and your exported symbols without reading every file.
+
+**Creates:** `codebase/` with 9 structured documents + `meta.json`
 
 ### 1. Initialize Project
 
@@ -36,6 +51,8 @@ One command, one flow. The system:
 - **Roadmap** — Creates phases mapped to requirements
 
 You approve the roadmap. Now you're ready to build.
+
+**Flags:** `--prd <path>` — Skip questioning and import from a PRD/spec file
 
 **Creates:** `PROJECT.md`, `REQUIREMENTS.md`, `ROADMAP.md`, `STATE.md`, `research/`
 
@@ -146,23 +163,58 @@ Use for: bug fixes, small features, config changes, one-off tasks.
 
 ---
 
+## Codebase Intelligence (RAG)
+
+fms can build a semantic search index over your codebase analysis documents, so agents can query project knowledge by meaning instead of keyword.
+
+### Build the index
+
+```bash
+fms index-codebase
+```
+
+Reads all `.md` files from `codebase/`, chunks by heading, and generates 768-dimensional embeddings using a local HuggingFace model (`nomic-embed-text-v1`). No API keys, no network calls — everything runs locally.
+
+**Requires:** `@huggingface/transformers` (listed as optional dependency — install it to enable RAG)
+
+### Query the index
+
+```bash
+fms query "How does the install flow work?"
+```
+
+Embeds your question, computes cosine similarity against all chunks, and returns the most relevant sections with source references.
+
+### Detect drift
+
+```bash
+fms refresh-codebase
+```
+
+Compares the current git HEAD against the last mapping commit. If files have changed, it flags which codebase documents may be stale and rebuilds the RAG index.
+
+**Creates:** `codebase/index.json` (chunks + embeddings), updates `codebase/meta.json`
+
+---
+
 ## Why It Works
 
 ### Context engineering
 
 The assistant is much more effective when it has the right context. fms handles that for you:
 
-| File / folder   | What it does |
-|-----------------|--------------|
-| `PROJECT.md`    | Project vision, always loaded |
-| `research/`     | Ecosystem knowledge (stack, features, architecture, pitfalls) |
+| File / folder     | What it does |
+|-------------------|--------------|
+| `codebase/`       | 9 structured analysis documents — tech, architecture, symbols, conventions, concerns |
+| `PROJECT.md`      | Project vision, always loaded |
+| `research/`       | Ecosystem knowledge (stack, features, architecture, pitfalls) |
 | `REQUIREMENTS.md` | Scoped v1/v2 requirements with phase traceability |
-| `ROADMAP.md`    | Where you're going, what's done |
-| `STATE.md`      | Decisions, blockers, position — memory across sessions |
-| `CONTEXT.md`    | Locked decisions, discretion areas, deferred ideas for a phase |
-| `PLAN.md`       | Atomic task with YAML frontmatter, goal-backward must_haves, and structured tasks |
-| `SUMMARY.md`    | What happened, what changed, committed to history |
-| `quick/`        | Ad-hoc task plans and summaries |
+| `ROADMAP.md`      | Where you're going, what's done |
+| `STATE.md`        | Decisions, blockers, position — memory across sessions |
+| `CONTEXT.md`      | Locked decisions, discretion areas, deferred ideas for a phase |
+| `PLAN.md`         | Atomic task with YAML frontmatter, goal-backward must_haves, and structured tasks |
+| `SUMMARY.md`      | What happened, what changed, committed to history |
+| `quick/`          | Ad-hoc task plans and summaries |
 
 Size and structure are tuned so context stays useful. Stay within them for consistent results.
 
@@ -184,6 +236,7 @@ Each stage uses the same idea: a thin orchestrator spawns specialized agents, co
 
 | Stage      | Orchestrator | Agents |
 |------------|--------------|--------|
+| Codebase mapping | Creates structure, verifies output | 4 parallel mappers (tech, arch, quality, concerns) + 1 sequential summarizer |
 | Research   | Coordinates, presents findings | Parallel researchers (stack, features, architecture, pitfalls) |
 | Planning   | Validates, manages iteration | Researcher investigates domain, planner creates plans, plan-checker verifies (7 dimensions), revision loop (max 3x) |
 | Execution  | Groups into waves, tracks progress | Executors implement (parallel where possible), fresh context per plan |
@@ -264,11 +317,35 @@ If you edit installed agents locally and reinstall, your modified versions are b
 
 ---
 
+## CLI Reference
+
+| Command | Description |
+|---------|-------------|
+| `fms install` | Install fms to selected runtime(s) |
+| `fms new-project [--prd <path>]` | Start a new project (questions → research → requirements → roadmap) |
+| `fms map-codebase` | Analyze codebase with parallel mapper agents (9 documents) |
+| `fms discuss-phase <N>` | Clarify gray areas for a phase |
+| `fms plan-phase <N>` | Generate executable plans for a phase |
+| `fms execute-phase <N>` | Run all plans in a phase (wave-based) |
+| `fms verify-work <N>` | Manually verify phase deliverables |
+| `fms complete-phase` | Mark current phase as done |
+| `fms complete-milestone` | Archive milestone and advance to next |
+| `fms quick ["task"]` | Quick ad-hoc task with fms guarantees |
+| `fms status` | Show current project/phase state |
+| `fms config` | Show or change install path preference |
+| `fms index-codebase` | Build RAG index from codebase analysis documents |
+| `fms query "question"` | Query the codebase RAG index |
+| `fms refresh-codebase` | Detect drift and rebuild RAG index |
+| `fms help [command]` | Display help for a command |
+
+---
+
 ## Tech stack
 
-- **Language:** TypeScript  
-- **Runtime:** Node.js >= 18  
-- **CLI:** commander, inquirer, chalk  
+- **Language:** TypeScript 5.3+
+- **Runtime:** Node.js >= 18 (ESM)
+- **CLI:** Commander, Inquirer, Chalk
+- **RAG (optional):** `@huggingface/transformers` — local embeddings with `nomic-embed-text-v1` (768-dim)
 - **Artifacts:** Markdown/JSON in the installed runtime root (e.g. `.cursor/fms/`, `~/.claude/fms/` depending on install choice)
 
 ---

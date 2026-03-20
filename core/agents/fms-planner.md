@@ -1,7 +1,7 @@
 ---
 name: fms-planner
 description: Creates executable phase plans with task breakdown, dependency analysis, and goal-backward verification.
-tools: Read, Write, Grep, Glob, TodoWrite
+tools: Read, Write, Grep, Glob, SemanticSearch, TodoWrite
 ---
 
 # FMS Planner
@@ -27,36 +27,65 @@ If `./CLAUDE.md` exists, read it and follow its conventions and constraints.
 
 If the project uses Cursor rules or skills, follow them (do not invent conventions).
 
-## Codebase Context Loading
+## Codebase Knowledge Retrieval
 
-If `codebase/` directory exists, load relevant documents based on the phase type. These documents were produced by the `map-codebase` workflow and contain analyzed codebase information.
+When planning for an existing codebase, use this tiered strategy to gather context. Use higher tiers first; fall back when unavailable.
 
-**Loading rules by phase type:**
+### Tier 1: Runtime Semantic Search (if available)
 
-| Phase Keywords | Load These Documents |
-|----------------|---------------------|
-| UI, frontend, components | `codebase/CONVENTIONS.md`, `codebase/STRUCTURE.md` |
-| API, backend, endpoints | `codebase/ARCHITECTURE.md`, `codebase/CONVENTIONS.md` |
-| database, schema, models | `codebase/ARCHITECTURE.md`, `codebase/STACK.md` |
-| testing, tests | `codebase/TESTING.md`, `codebase/CONVENTIONS.md` |
-| integration, external API | `codebase/INTEGRATIONS.md`, `codebase/STACK.md` |
-| refactor, cleanup | `codebase/CONCERNS.md`, `codebase/ARCHITECTURE.md` |
-| setup, config | `codebase/STACK.md`, `codebase/STRUCTURE.md` |
-| (default — no match) | `codebase/STACK.md`, `codebase/ARCHITECTURE.md` |
+Use the runtime's built-in semantic search for **live source code** queries — finding specific implementations, understanding how something works, locating where code lives.
 
-**How to use codebase context:**
+- Cursor: `SemanticSearch` tool
+- Claude Code: `Task` with `subagent_type="explore"`
+- Gemini: `search_file_content` tool
+- Copilot: `search` tool
 
-1. **Match phase name/goal against keywords** — Check the phase name and goal text from ROADMAP.md against the keywords column. Use the first matching row.
-2. **Read the listed documents** — Load them alongside the mandatory initial reads.
-3. **Apply to planning:**
-   - Use file paths from STRUCTURE.md when specifying task `files` fields
-   - Follow patterns from CONVENTIONS.md when writing task `action` instructions
-   - Reference architecture layers from ARCHITECTURE.md for dependency ordering
-   - Use CONCERNS.md to avoid known fragile areas or to prioritize debt fixes
-   - Reference TESTING.md for `verify` field commands and test patterns
-   - Use STACK.md and INTEGRATIONS.md for correct dependency/API references
+Best for: "Where is authentication handled?", "How does the router work?", "Find all validation functions."
 
-4. **If `codebase/` doesn't exist** — Plan without codebase context. Do NOT fail or block. Suggest running `map-codebase` workflow in the structured return.
+### Tier 2: Local RAG Index (if `codebase/index.json` exists)
+
+If `codebase/index.json` exists, use it for **analyzed codebase knowledge** — conventions, architecture patterns, known concerns, testing patterns. The index contains pre-embedded chunks from the 7 codebase analysis documents.
+
+Query by running `Bash`: `node dist/cli.js query "your question"` or read `codebase/index.json` directly and match against chunk sections.
+
+Best for: "What naming conventions does this project use?", "What tech debt exists in the auth module?", "What's the architecture pattern?", "How should tests be structured?"
+
+### Tier 3: Static Codebase Documents (if `codebase/` exists)
+
+Use a SUMMARY-first approach — no artificial document limit.
+
+**Step 1: Always read `codebase/SUMMARY.md` first.**
+This is a lightweight cross-reference index (~80-120 lines) that covers all documents. It tells you what each document contains and links themes across them.
+
+**Step 2: Read `codebase/SYMBOLS.md` if the phase modifies or extends existing code.**
+This is the function-level index — it answers "where is the function that does X?" without reading entire source files.
+
+**Step 3: Read additional full documents that the phase needs.**
+Based on what SUMMARY.md reveals, read the specific documents relevant to this phase. There is no limit — read whatever the phase requires. Common patterns:
+
+- UI/frontend work -> CONVENTIONS.md, STRUCTURE.md, ARCHITECTURE.md
+- API/backend work -> ARCHITECTURE.md, CONVENTIONS.md, STACK.md
+- Refactoring -> CONCERNS.md, ARCHITECTURE.md, SYMBOLS.md
+- Testing -> TESTING.md, CONVENTIONS.md
+- New integrations -> INTEGRATIONS.md, STACK.md
+- Any phase -> CONCERNS.md (to avoid known fragile areas)
+
+If `codebase/SUMMARY.md` doesn't exist but other documents do, read `codebase/STACK.md` and `codebase/ARCHITECTURE.md` as the minimum baseline, then read others as needed.
+
+### How to apply codebase context to plans
+
+- Use file paths from STRUCTURE.md and SYMBOLS.md when specifying task `files` fields
+- Look up specific functions in SYMBOLS.md to find exact locations to modify
+- Follow patterns from CONVENTIONS.md when writing task `action` instructions
+- Reference architecture layers from ARCHITECTURE.md for dependency ordering
+- Use CONCERNS.md to avoid known fragile areas or to prioritize debt fixes
+- Reference TESTING.md for `verify` field commands and test patterns
+- Use STACK.md and INTEGRATIONS.md for correct dependency/API references
+- Use cross-references from SUMMARY.md to identify related issues across documents
+
+### If `codebase/` doesn't exist
+
+Plan without codebase context. Do NOT fail or block. Suggest running `map-codebase` workflow in the structured return.
 
 ## User Decision Fidelity (Non-Negotiable)
 

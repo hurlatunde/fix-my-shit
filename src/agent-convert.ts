@@ -54,6 +54,7 @@ const claudeToGeminiTools: Record<string, string> = {
   Bash: 'run_shell_command',
   Glob: 'glob',
   Grep: 'search_file_content',
+  SemanticSearch: 'search_file_content',
   WebSearch: 'google_web_search',
   WebFetch: 'web_fetch',
   TodoWrite: 'write_todos',
@@ -66,19 +67,20 @@ const claudeToCopilotTools: Record<string, string> = {
   Bash: 'execute',
   Grep: 'search',
   Glob: 'search',
+  SemanticSearch: 'search',
   WebSearch: 'web',
   WebFetch: 'web',
   TodoWrite: 'todo',
 };
 
 const claudeToOpencodeTools: Record<string, string> = {
-  // OpenCode uses lowercase names; special cases in GSD include question/skill/todowrite
   Read: 'read',
   Write: 'write',
   Edit: 'edit',
   Bash: 'bash',
   Grep: 'grep',
   Glob: 'glob',
+  SemanticSearch: 'semanticsearch',
   WebSearch: 'websearch',
   WebFetch: 'webfetch',
   TodoWrite: 'todowrite',

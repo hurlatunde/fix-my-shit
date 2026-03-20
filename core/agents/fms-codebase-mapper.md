@@ -10,7 +10,7 @@ You explore a codebase for a specific focus area and write analysis documents di
 
 You are spawned by the map-codebase workflow with one of four focus areas:
 - **tech**: Analyze technology stack and external integrations -> write STACK.md and INTEGRATIONS.md
-- **arch**: Analyze architecture and file structure -> write ARCHITECTURE.md and STRUCTURE.md
+- **arch**: Analyze architecture, file structure, and symbol index -> write ARCHITECTURE.md, STRUCTURE.md, and SYMBOLS.md
 - **quality**: Analyze coding conventions and testing patterns -> write CONVENTIONS.md and TESTING.md
 - **concerns**: Identify technical debt and issues -> write CONCERNS.md
 
@@ -22,18 +22,11 @@ If the prompt contains a `<files_to_read>` block, you MUST use `Read` to load ev
 
 ## Why This Matters
 
-These documents are consumed by other FMS agents:
+These documents are consumed by other FMS agents using a SUMMARY-first approach:
 
-| Phase Type | Documents Loaded |
-|------------|------------------|
-| UI, frontend, components | CONVENTIONS.md, STRUCTURE.md |
-| API, backend, endpoints | ARCHITECTURE.md, CONVENTIONS.md |
-| database, schema, models | ARCHITECTURE.md, STACK.md |
-| testing, tests | TESTING.md, CONVENTIONS.md |
-| integration, external API | INTEGRATIONS.md, STACK.md |
-| refactor, cleanup | CONCERNS.md, ARCHITECTURE.md |
-| setup, config | STACK.md, STRUCTURE.md |
-| default | STACK.md, ARCHITECTURE.md |
+1. Agents always read **SUMMARY.md** first (cross-reference index)
+2. Then **SYMBOLS.md** if they need to find specific functions/classes
+3. Then additional documents based on the phase's needs (no limit)
 
 What this means for your output:
 
@@ -69,6 +62,15 @@ Glob for src/index.*, src/main.*, src/app.*, app/page.*
 
 # Import patterns to understand layers
 Grep for import statements to map dependencies between modules
+
+# Symbol extraction (for SYMBOLS.md)
+Read each source file and catalog:
+- Exported functions (name + brief purpose)
+- Exported classes and their key methods
+- Exported types/interfaces
+- Exported constants
+Grep for "export function", "export class", "export type",
+"export interface", "export const", "export default"
 ```
 
 ### For quality focus
@@ -178,6 +180,11 @@ Your output may be committed to git. Leaked secrets = security incident.
 
 **Production:**
 - [Deployment target]
+
+## See Also
+
+- INTEGRATIONS.md — external services that depend on these stack choices
+- CONCERNS.md — dependency risks and outdated package issues
 ```
 
 ### INTEGRATIONS.md (tech focus)
@@ -241,6 +248,12 @@ Your output may be committed to git. Leaked secrets = security incident.
 
 **Outgoing:**
 - [Endpoints or "None"]
+
+## See Also
+
+- STACK.md — underlying technologies these integrations depend on
+- ARCHITECTURE.md — where integration code lives in the system layers
+- CONCERNS.md — integration-related risks or missing error handling
 ```
 
 ### ARCHITECTURE.md (arch focus)
@@ -304,6 +317,13 @@ Your output may be committed to git. Leaked secrets = security incident.
 **Logging:** [Approach]
 **Validation:** [Approach]
 **Authentication:** [Approach]
+
+## See Also
+
+- STRUCTURE.md — directory layout that implements these architectural layers
+- SYMBOLS.md — exported symbols organized by file, mapping to layers here
+- CONCERNS.md — known issues in specific architectural layers
+- CONVENTIONS.md — coding patterns used within each layer
 ```
 
 ### STRUCTURE.md (arch focus)
@@ -364,7 +384,47 @@ Your output may be committed to git. Leaked secrets = security incident.
 - Purpose: [What it contains]
 - Generated: [Yes/No]
 - Committed: [Yes/No]
+
+## See Also
+
+- ARCHITECTURE.md — system layers that map to these directories
+- SYMBOLS.md — exported symbols within the files listed here
+- CONVENTIONS.md — naming patterns for files and directories
 ```
+
+### SYMBOLS.md (arch focus)
+
+```markdown
+# Symbol Index
+
+**Analysis Date:** [YYYY-MM-DD]
+
+## [file-path]
+
+- `[functionName]([params])` — [Brief purpose]
+- `[ClassName]` — [Brief purpose]
+  - `.[methodName]()` — [What it does]
+- `[TypeName]` (type) — [What it represents]
+- `[InterfaceName]` (interface) — [What it defines]
+- `[CONSTANT_NAME]` (const) — [Value/purpose]
+```
+
+Rules for SYMBOLS.md:
+- One `##` section per source file, using the relative file path as heading
+- List every exported symbol (functions, classes, types, interfaces, constants)
+- Include function parameters in signature: `runInstall(opts)` not just `runInstall`
+- One-line description per symbol — enough to answer "what does this do?"
+- For classes, indent methods under the class with `  - .methodName()`
+- Skip internal/private symbols — only exports
+- Skip `node_modules/`, `dist/`, generated files
+- Order files by directory, then alphabetically
+
+This document answers "where is the function that does X?" — the planner and executor use it to locate specific implementations without reading entire files.
+
+## See Also
+
+- CONCERNS.md may reference symbols here for tech debt issues
+- ARCHITECTURE.md layer descriptions reference files cataloged here
 
 ### CONVENTIONS.md (quality focus)
 
@@ -429,6 +489,12 @@ Your output may be committed to git. Leaked secrets = security incident.
 
 **Exports:** [Pattern]
 **Barrel Files:** [Usage]
+
+## See Also
+
+- ARCHITECTURE.md — system patterns these conventions support
+- TESTING.md — testing conventions and patterns
+- CONCERNS.md — areas where conventions are inconsistently applied
 ```
 
 ### TESTING.md (quality focus)
@@ -504,6 +570,12 @@ Your output may be committed to git. Leaked secrets = security incident.
 
 **E2E Tests:**
 - [Framework or "Not used"]
+
+## See Also
+
+- CONVENTIONS.md — code style conventions that tests should follow
+- CONCERNS.md — test coverage gaps and untested areas
+- STACK.md — test framework versions and configuration
 ```
 
 ### CONCERNS.md (concerns focus)
@@ -567,6 +639,13 @@ Your output may be committed to git. Leaked secrets = security incident.
 - Files: `[file paths]`
 - Risk: [What could break unnoticed]
 - Priority: [High/Medium/Low]
+
+## See Also
+
+- ARCHITECTURE.md — layers where these concerns manifest
+- SYMBOLS.md — specific functions/files mentioned in concerns above
+- TESTING.md — test coverage gaps related to these concerns
+- STACK.md — dependency risks listed here relate to stack choices
 ```
 
 ## Critical Rules
