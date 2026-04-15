@@ -5,7 +5,7 @@
 <p align="center">Structured, phased project management and issue resolution for AI coding assistants, delivered as a small Node.js CLI. fms helps you go from vague idea to verified, committed outcome using a repeatable 6‑phase flow, plus Quick Mode for small tasks and Codebase Mapping for deep project understanding.</p>
 
 [![npm version](https://img.shields.io/npm/v/fix-my-shit.svg?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/fix-my-shit)
-[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/Hurlatunde/fix-my-shit/test.yml?label=tests?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit/actions)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/Hurlatunde/fix-my-shit/publish.yml?label=tests&style=for-the-badge&logo=githubactions&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit/actions/workflows/publish.yml)
 [![GitHub stars](https://img.shields.io/github/stars/Hurlatunde/fix-my-shit?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://github.com/Hurlatunde/fix-my-shit)
 
 <p align="center"><strong>Map → Initialize → Discuss → Plan → Execute → Verify → Complete</strong></p>
@@ -24,9 +24,11 @@ npx fix-my-shit@latest
 
 Run fms from your project root so it can use your Git repo and AI runtime context. Then commands understand where you're working — questions focus on what you're adding, and planning loads your patterns.
 
-### 0. Map Codebase (Brownfield Projects)
+### 0. Init
 
 **`/fms:map-codebase`** or **`fms map-codebase`**
+
+**When to Use:** Existing (brownfield) codebases.
 
 For existing codebases, start here. The system spawns 4 parallel mapper agents that analyze your project and write structured documents:
 
