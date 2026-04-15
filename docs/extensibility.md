@@ -1,74 +1,172 @@
-# Extensibility: hooks, templates, agents, and workflows
+# Extensibility: Hooks, Templates, Agents, and Workflows
 
-Fix My Shit (fms) is designed so you can extend it without changing the CLI itself. This document explains how the on-disk layout works, how local installs override global ones, and how to add your own templates, agents, and workflows.
+Fix My Shit (fms) is designed so you can extend it without changing the CLI itself. This document explains the on-disk layout, how local installs override global ones, multi-runtime support, and how to add your own templates, agents, and workflows.
 
-## Directory layout and anchors
+## Directory Layout
 
-When you run `npx fix-my-shit` (or `fms install`), the installer creates a stable layout under the chosen fms root (either `./.cursor/fms` or `~/.cursor/fms`):
+When you run `npx fix-my-shit` (or `fms install`), the installer creates a stable layout under the chosen fms root:
 
-- `VERSION` — the installed fms version (e.g. `1.0.0`)
-- `fms-file-manifest.json` — JSON manifest listing all paths created by the installer
-- `hooks/` — built-in and user hooks (runtime state such as `hooks/update-check.json` lives here)
-- `templates/` — template files used by planners/executors
-- `agents/` — agent configuration and behavior files
-- `workflows/` — workflow definitions
-- `phases/` — per-phase plans and summaries for projects created via `fms new-project`
-- `quick/` — quick mode plans and summaries
-- `commands/`, `research/`, and other internal directories
+```
+<fms-root>/
+├── VERSION                    # Installed fms version
+├── fms-file-manifest.json     # JSON manifest of all installed paths + hashes
+├── package.json               # Minimal package metadata
+├── templates/                 # Template files used by planners/executors
+│   ├── PROJECT.md
+│   ├── ROADMAP.md
+│   ├── REQUIREMENTS.md
+│   ├── STATE.md
+│   ├── PLAN.md
+│   ├── RESEARCH.md
+│   ├── VALIDATION.md
+│   ├── CONTEXT.md
+│   ├── DEBUG.md
+│   ├── UAT.md
+│   ├── UI-SPEC.md
+│   └── research-project/      # Research sub-templates
+│       ├── SUMMARY.md
+│       ├── STACK.md
+│       ├── FEATURES.md
+│       ├── ARCHITECTURE.md
+│       └── PITFALLS.md
+├── agents/                    # Agent configuration and behavior files
+│   ├── fms-planner.md
+│   ├── fms-plan-checker.md
+│   ├── fms-executor.md
+│   ├── fms-phase-researcher.md
+│   ├── fms-verifier.md
+│   ├── fms-debugger.md
+│   └── fms-codebase-mapper.md
+├── workflows/                 # Workflow definitions
+│   ├── new-project.md
+│   ├── discuss-phase.md
+│   ├── plan-phase.md
+│   ├── execute-phase.md
+│   ├── map-codebase.md
+│   ├── verify-work.md
+│   ├── quick.md
+│   └── help.md
+├── research/                  # Reference documents (from core/references)
+│   ├── verification-patterns.md
+│   ├── git-integration.md
+│   ├── questioning.md
+│   └── continuation-format.md
+├── hooks/                     # Built-in and user hooks
+├── phases/                    # Per-phase plans and summaries
+├── quick/                     # Quick mode plans and summaries
+└── commands/                  # Internal command state
+```
+
+### Anchoring Files
 
 `VERSION` and `fms-file-manifest.json` together anchor the install:
 
-- `VERSION` tells you which release is installed.
-- `fms-file-manifest.json` records all paths created during installation so future tooling can validate that the expected layout exists.
+- **`VERSION`** — Which release is installed.
+- **`fms-file-manifest.json`** — Records every installed file path and its SHA-256 hash. Used to detect local modifications on re-install.
 
-Runtime files written later (for example `hooks/update-check.json` or phase summaries under `phases/`) are not required to appear in the manifest; they are treated as data produced on top of the anchored layout.
+Runtime files written later (phase summaries, quick task outputs, hook state like `hooks/update-check.json`) are not required to appear in the manifest; they are data produced on top of the anchored layout.
 
-## Local vs global installs
+## Supported Runtimes
+
+fms supports 7 runtimes. Each has its own global and local install path:
+
+| Runtime       | Global path                      | Local path (project)     |
+|---------------|----------------------------------|--------------------------|
+| Cursor        | `~/.cursor/fms`                  | `./.cursor/fms`          |
+| Claude Code   | `~/.claude/fms`                  | `./.claude/fms`          |
+| OpenCode      | `~/.config/opencode/fms`         | `./.opencode/fms`        |
+| Gemini        | `~/.gemini/fms`                  | `./.gemini/fms`          |
+| Codex         | `~/.codex/fms`                   | `./.codex/fms`           |
+| Copilot       | `~/.copilot/fms`                 | `./.github/fms`          |
+| Antigravity   | `~/.gemini/antigravity/fms`      | `./.agent/fms`           |
+
+### Agent File Formats by Runtime
+
+The agent file format varies by runtime:
+
+- **Cursor / Claude / OpenCode / Gemini / Antigravity**: `agents/fms-*.md`
+- **Copilot**: `agents/fms-*.agent.md` (tool names mapped to Copilot conventions)
+- **Codex**: `agents/fms-*.md` plus `agents/fms-*.toml` and a root `config.toml` that registers agents
+
+The installer handles format conversion automatically via `agent-convert.ts`.
+
+## Local vs Global Installs
 
 Path resolution is handled centrally by `resolveFmsRoot`:
 
-- Local first: `./.cursor/fms` in your current workspace, if it exists.
-- Otherwise: global `~/.cursor/fms`.
-- Preferences: you can force either with `fms config --set-local` or `fms config --set-global`.
+1. **Local first:** `./<runtime-local-path>/fms` in the current workspace, if it exists.
+2. **Otherwise:** Global `~/<runtime-global-path>/fms`.
+3. **Preferences:** Force either with `fms config --set-local` or `fms config --set-global`.
 
-Because all high-level commands call `resolveFmsRoot`, any helpers that work against the fms root automatically inherit **local-over-global** behavior:
+All high-level commands call `resolveFmsRoot`, so any helpers that work against the fms root automatically inherit **local-over-global** behavior. A project-local install will always be used when present.
 
-- A project-local `.cursor/fms` will always be used when present.
-- Only when no local install exists will the global `~/.cursor/fms` be used.
+## Custom Templates, Agents, and Workflows
 
-## Custom templates, agents, and workflows
+Extend fms by dropping files under the fms root:
 
-You can extend fms by dropping files under the fms root:
-
-- `templates/` — add custom planning or execution templates.
-- `agents/` — define custom agents for planning, execution, or verification.
-- `workflows/` — define higher-level workflows that orchestrate agents and templates.
+- **`templates/`** — Custom planning or execution templates.
+- **`agents/`** — Custom agents for planning, execution, or verification.
+- **`workflows/`** — Higher-level workflows that orchestrate agents and templates.
 
 The CLI provides helper functions (in `src/extensibility.ts`) that discover these artifacts:
 
-- `listTemplates(fmsRoot: string): string[]` — lists files under `templates/` as relative paths.
-- `listAgents(fmsRoot: string): string[]` — lists files under `agents/`.
-- `listWorkflows(fmsRoot: string): string[]` — lists files under `workflows/`.
+| Function | Description |
+|----------|-------------|
+| `listTemplates(fmsRoot)` | Lists files under `templates/` as relative paths |
+| `listAgents(fmsRoot)` | Lists files under `agents/` |
+| `listWorkflows(fmsRoot)` | Lists files under `workflows/` |
 
-These helpers:
+These helpers respect whatever `fmsRoot` the caller passes (typically from `resolveFmsRoot`), handle missing directories gracefully (returning an empty array), and return only files — not directories — as sorted relative paths.
 
-- Respect whatever `fmsRoot` the caller passes (typically from `resolveFmsRoot`).
-- Handle missing directories gracefully by returning an empty array.
-- Return only files, not directories, as sorted relative paths (e.g. `templates/my-template.md`).
+## Hooks
 
-Future versions of fms can plug these helpers directly into planner and executor flows so that your custom templates, agents, and workflows participate in the same lifecycle without changing the on-disk contract.
+fms exposes a lifecycle hook system that wraps core commands without interfering with them.
 
-## Hooks as an extensibility point
+### Built-in Hooks
 
-In addition to templates/agents/workflows, fms exposes a hook system:
+| Hook | Description |
+|------|-------------|
+| `update-check` | Checks npm for newer versions and suggests upgrades |
+| `context-monitor` | Prints context window guidance before heavy planning/execution commands |
+| `statusline` | Prints a concise status line after core workflow commands |
 
-- Hooks live under `hooks/` in the fms root.
-- Built-in hooks include:
-  - `update-check` — checks npm for newer versions and suggests upgrades without breaking commands.
-  - `context-monitor` — prints context window guidance before heavy planning/execution commands.
-  - `statusline` — prints a concise status line after core workflow commands.
+### How Hooks Work
 
-Hooks are invoked via the shared hook runner in `src/hooks/index.ts` and are wrapped around core commands (`new-project`, `plan-phase`, `execute-phase`, `verify-work`, `complete-phase`, `complete-milestone`, and `quick`) using a `withHooks` helper. Hook failures are logged and never break the primary command flow.
+Hooks are invoked via the shared hook runner in `src/hooks/index.ts` using a `withHooks` helper that wraps core commands. The lifecycle is:
 
-You can extend this behavior by adding additional hook modules under `hooks/` and wiring them into the registry, following the same non-throwing, defensive patterns.
+1. **Before hooks** run in parallel before the command executes.
+2. **The command** runs normally.
+3. **After hooks** run in parallel when the command completes (including on error).
 
+Hook failures are logged with `[fms:hook]` prefix and never break the primary command flow.
+
+### Hooked Commands
+
+The following commands run inside `withHooks`:
+
+- `new-project`
+- `discuss-phase`
+- `plan-phase`
+- `execute-phase`
+- `verify-work`
+- `complete-phase`
+- `complete-milestone`
+- `quick`
+
+### Adding Custom Hooks
+
+Add hook modules under `hooks/` and wire them into the `builtInHooks` registry in `src/hooks/index.ts`. Follow the same non-throwing, defensive patterns — every hook should be wrapped in a try/catch and return `Promise<void>`.
+
+## Manifest and Local Patches
+
+- **`fms-file-manifest.json`** — Records every installed file and its SHA-256 hash. On re-install, the installer compares current file hashes against the manifest to detect local modifications.
+- **`fms-local-patches/`** — If you re-install and had modified any installed files, those versions are copied here before overwriting. A `backup-meta.json` file lists what was backed up (including the previous version) so you can compare or reapply changes after upgrading.
+
+## Template Variables
+
+Text files (`.md`, `.json`, `.js`, `.cjs`, `.toml`, `.txt`) are templated during install with:
+
+| Variable | Replaced with |
+|----------|---------------|
+| `${FMS_RUNTIME}` | The runtime name (e.g. `cursor`, `claude`) |
+| `${FMS_ROOT}` | The absolute fms root path (forward slashes) |
