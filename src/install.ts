@@ -24,6 +24,10 @@ import {
   getLocalRoot,
 } from './runtime-paths.js';
 import { getPackageVersion } from './lib/version.js';
+import {
+  cleanupCursorNativeIntegration,
+  installCursorNativeIntegration,
+} from './cursor-native-install.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CORE_ROOT = path.join(__dirname, 'core');
@@ -355,12 +359,19 @@ export interface InstallResult {
  * Install fms for a single runtime target. Backs up modified files if re-installing,
  * populates from core bundle, writes manifest. Returns summary for logging.
  */
-export function installForRuntime(target: InstallTarget): InstallResult {
+export function installForRuntime(
+  target: InstallTarget,
+  opts: Pick<InstallCliOptions, 'noCursorNative'> = {}
+): InstallResult {
   const { runtime, location, root: fmsRoot } = target;
   const modifiedBackedUp: string[] = [];
+  const installCursorNative = runtime === 'cursor' && !opts.noCursorNative;
 
   if (fs.existsSync(fmsRoot)) {
     modifiedBackedUp.push(...saveLocalPatches(fmsRoot));
+    if (installCursorNative) {
+      cleanupCursorNativeIntegration(fmsRoot, target);
+    }
     fs.rmSync(fmsRoot, { recursive: true, force: true });
   }
 
@@ -421,6 +432,13 @@ export function installForRuntime(target: InstallTarget): InstallResult {
     console.log(chalk.yellow('  Warning: agents/ directory missing after install'));
   }
 
+  if (installCursorNative) {
+    const native = installCursorNativeIntegration(target);
+    step(
+      `Installed Cursor native integration (${native.files.length} files in ${formatDisplayRoot(native.cursorDir)})`
+    );
+  }
+
   return { target, modifiedBackedUp };
 }
 
@@ -447,7 +465,7 @@ export async function runInstall(opts: InstallCliOptions = {}): Promise<void> {
       chalk.cyan(`\n  Installing for ${runtime} (${location}) at ${formatDisplayRoot(fmsRoot)}\n`)
     );
 
-    const result = installForRuntime(target);
+    const result = installForRuntime(target, opts);
 
     step('Populated templates, workflows, agents, hooks, research');
     step('Wrote VERSION (' + version + ')');
@@ -464,5 +482,5 @@ export async function runInstall(opts: InstallCliOptions = {}): Promise<void> {
     }
   }
 
-  console.log('\nDone! Run /fms:help in Cursor to get started.\n');
+  console.log('\nDone! Run /fms-help in Cursor (or `fms help`) to get started.\n');
 }

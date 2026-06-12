@@ -1,6 +1,6 @@
 {
   "name": "fix-my-shit",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Structured workflow assistant for Cursor — phased project management and issue resolution",
   "type": "module",
   "main": "dist/cli.js",

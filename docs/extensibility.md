@@ -152,6 +152,29 @@ Seven runtimes; each has global and local install paths (`src/runtime-paths.ts`)
 
 Conversion is handled by `src/agent-convert.ts` during install.
 
+## Cursor native integration
+
+When installing for **Cursor** (unless `--no-cursor-native` is passed), `src/cursor-native-install.ts` registers Settings-visible files alongside the fms bundle:
+
+| Destination                   | Source               | Purpose                                                  |
+| ----------------------------- | -------------------- | -------------------------------------------------------- |
+| `.cursor/agents/fms-*.md`     | `<fms-root>/agents/` | Subagents in Settings (tagged `managed-by: fix-my-shit`) |
+| `.cursor/commands/fms-*.md`   | Generated            | Slash commands (`/fms-help`, `/fms-plan-phase`, …)       |
+| `.cursor/skills/fms/SKILL.md` | Generated            | Overview skill for discovery                             |
+
+Global installs use `~/.cursor/` instead of `./.cursor/`.
+
+**Routing:**
+
+- **Workflow-primary commands** tell the agent to read `<fms-root>/workflows/*.md` and spawn subagents (map, plan, execute, verify, discuss, quick, new-project).
+- **CLI-primary commands** tell the agent to run `fms …` in the terminal (status, config, help, RAG, complete-\* ).
+
+**Manifest:** `<fms-root>/cursor-native-manifest.json` lists every managed native file. On reinstall, the installer removes those paths before repopulating the fms bundle and regenerating native files. User-created agents/commands/skills without `managed-by: fix-my-shit` are not touched.
+
+**Opt-out:** `fms install --cursor --no-cursor-native` installs only `.cursor/fms/`.
+
+See `docs/cursor-commands.md` for the full slash-command table.
+
 ## Local vs global CLI root
 
 `resolveFmsRoot()` in `src/path-resolver.ts`:
@@ -169,9 +192,9 @@ Edit files under your **runtime** install tree:
 | ------------ | ------------------- | ------------------------------------------------------------------------------------------------- |
 | `templates/` | Agents, humans      | Overrides survive until reinstall (see [Manifest and local patches](#manifest-and-local-patches)) |
 | `agents/`    | AI runtime          | Custom `fms-*.md` agents picked up by Cursor/Claude/etc.                                          |
-| `workflows/` | AI runtime / skills | Orchestration docs for `/fms:...` style commands                                                  |
+| `workflows/` | AI runtime / skills | Orchestration docs; referenced by Cursor slash commands                                           |
 
-The CLI does **not** auto-invoke custom agents or workflows today. Extension is primarily for your IDE or agent runtime. TypeScript helpers in `src/extensibility.ts` list top-level files only (not nested paths like `templates/research-project/STACK.md`); nothing in the CLI calls them yet.
+The CLI does **not** auto-invoke custom agents or workflows. Cursor slash commands (installed under `.cursor/commands/`) reference bundled workflows and subagents. TypeScript helpers in `src/extensibility.ts` list top-level files only (not nested paths like `templates/research-project/STACK.md`); nothing in the CLI calls them yet.
 
 ## Hooks
 

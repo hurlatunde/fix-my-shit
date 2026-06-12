@@ -26,7 +26,7 @@ Run fms from your project root so it can use your Git repo and AI runtime contex
 
 ### 0. Map Codebase (Brownfield Projects)
 
-**`/fms:map-codebase`** or **`fms map-codebase`**
+**`/fms-map-codebase`** or **`fms map-codebase`**
 
 For existing codebases, start here. The system spawns 4 parallel mapper agents that analyze your project and write structured documents:
 
@@ -41,7 +41,7 @@ A 5th agent then reads all documents and generates a cross-reference index (`SUM
 
 ### 1. Initialize Project
 
-**`/fms:new-project`** or **`fms new-project`**
+**`/fms-new-project`** or **`fms new-project`**
 
 One command, one flow. The system:
 
@@ -58,7 +58,7 @@ You approve the roadmap. Now you're ready to build.
 
 ### 2. Discuss Phase
 
-**`/fms:discuss-phase 1`** or **`fms discuss-phase 1`**
+**`/fms-discuss-phase 1`** or **`fms discuss-phase 1`**
 
 This is where you shape the implementation.
 
@@ -77,7 +77,7 @@ For each area you select, it asks until you're satisfied. The output — **CONTE
 
 ### 3. Plan Phase
 
-**`/fms:plan-phase 1`** or **`fms plan-phase 1`**
+**`/fms-plan-phase 1`** or **`fms plan-phase 1`**
 
 The system orchestrates three specialized agents in sequence:
 
@@ -93,7 +93,7 @@ If the checker finds issues, plans go back to the planner for targeted revision 
 
 ### 4. Execute Phase
 
-**`/fms:execute-phase 1`** or **`fms execute-phase 1`**
+**`/fms-execute-phase 1`** or **`fms execute-phase 1`**
 
 The system:
 
@@ -110,7 +110,7 @@ Walk away, come back to completed work with clean git history.
 
 ### 5. Verify Work
 
-**`/fms:verify-work 1`** or **`fms verify-work 1`**
+**`/fms-verify-work 1`** or **`fms verify-work 1`**
 
 This is where you confirm it actually works.
 
@@ -128,13 +128,13 @@ If everything passes, you move on. If something's broken, run **execute-phase** 
 ### 6. Repeat → Complete → Next Milestone
 
 ```
-/fms:discuss-phase 2
-/fms:plan-phase 2
-/fms:execute-phase 2
-/fms:verify-work 2
+/fms-discuss-phase 2
+/fms-plan-phase 2
+/fms-execute-phase 2
+/fms-verify-work 2
 ...
-/fms:complete-milestone
-/fms:new-milestone
+/fms-complete-milestone
+/fms-new-milestone
 ```
 
 Loop **discuss → plan → execute → verify** until the milestone is complete. Each phase gets your input (discuss), research (plan), clean execution (execute), and human verification (verify). When all phases are done, **complete-milestone** archives the milestone and tags the release. **new-milestone** starts the next version — same flow as new-project but for your existing codebase. Each milestone is a clean cycle: define → build → ship.
@@ -145,7 +145,7 @@ For full **Cursor slash commands ↔ terminal** mapping, see `docs/cursor-comman
 
 ## Quick Mode
 
-**`/fms:quick`** or **`fms quick`**
+**`/fms-quick`** or **`fms quick`**
 
 For ad-hoc tasks that don't need full planning.
 
@@ -276,6 +276,20 @@ You need **Node.js >= 18**.
 
 On first run, fms asks **which runtime(s)** you want to install for and whether you want a **local** or **global** install. It then installs a **full bundle** (templates, workflows, agents, hooks, references) into the chosen location — not empty folders. You can re-run the installer to add more runtimes or upgrade; any files you changed are backed up to `fms-local-patches/` before overwriting.
 
+### Cursor Settings integration
+
+When you install for **Cursor**, fms also registers files in Cursor’s native paths so they appear in **Settings → Subagents, Commands, and Skills**:
+
+| Settings section | Path (local)                  | Path (global)                   |
+| ---------------- | ----------------------------- | ------------------------------- |
+| Subagents        | `.cursor/agents/fms-*.md`     | `~/.cursor/agents/fms-*.md`     |
+| Slash commands   | `.cursor/commands/fms-*.md`   | `~/.cursor/commands/fms-*.md`   |
+| Skills           | `.cursor/skills/fms/SKILL.md` | `~/.cursor/skills/fms/SKILL.md` |
+
+Use slash commands like `/fms-help`, `/fms-new-project`, and `/fms-plan-phase` (hyphen form, not `/fms:help`). Reload Cursor after install.
+
+The fms bundle (workflows, templates, etc.) stays under `.cursor/fms/`. Skip native registration with `--no-cursor-native`. See `docs/cursor-commands.md` for the full command list and workflow vs CLI routing.
+
 ### Supported runtimes and locations
 
 | Runtime     | Global path                 | Local path (project) |
@@ -298,11 +312,11 @@ npx fix-my-shit@latest install --claude --local
 npx fix-my-shit@latest install --all --global
 ```
 
-Options: `--cursor`, `--claude`, `--opencode`, `--gemini`, `--codex`, `--copilot`, `--antigravity`, `--all`, and `--global` / `-g` / `--local` / `-l`.
+Options: `--cursor`, `--claude`, `--opencode`, `--gemini`, `--codex`, `--copilot`, `--antigravity`, `--all`, and `--global` / `-g` / `--local` / `-l`. For Cursor, add `--no-cursor-native` to install only `.cursor/fms/` without populating Settings paths.
 
 ### Agents (runtime-specific formats)
 
-fms installs agents into `<runtime>/fms/agents/`, but **the agent file format varies by runtime**:
+fms installs agents into `<runtime>/fms/agents/`. For **Cursor**, copies also land in `.cursor/agents/` (or `~/.cursor/agents/` globally) so they appear in Settings. **The agent file format varies by runtime**:
 
 - **Cursor / Claude / OpenCode / Gemini / Antigravity**: `agents/fms-*.md`
 - **Copilot**: `agents/fms-*.agent.md` (tool names mapped to Copilot)
@@ -313,6 +327,7 @@ If you edit installed agents locally and reinstall, your modified versions are b
 ### Manifest and local patches
 
 - **`fms-file-manifest.json`** — Records every installed file and its hash. Used to detect which files you changed when you re-run the installer.
+- **`cursor-native-manifest.json`** (Cursor only) — Lists managed files under `.cursor/agents/`, `.cursor/commands/`, and `.cursor/skills/fms/`. Used to clean up native integration on reinstall.
 - **`fms-local-patches/`** — If you re-install and had modified any installed files, those versions are copied here before overwriting. A `backup-meta.json` file lists what was backed up so you can compare or reapply changes after upgrading.
 
 ---

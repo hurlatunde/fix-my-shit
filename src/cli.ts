@@ -40,6 +40,7 @@ program
   .option('-g', 'Install globally')
   .option('--local', 'Install locally')
   .option('-l', 'Install locally')
+  .option('--no-cursor-native', 'Skip installing Cursor Settings paths (agents, commands, skills)')
   .action(
     async (opts: {
       cursor?: boolean;
@@ -52,6 +53,7 @@ program
       all?: boolean;
       global?: boolean;
       local?: boolean;
+      noCursorNative?: boolean;
     }) => {
       await runInstall(opts);
     }

@@ -100,6 +100,7 @@ export interface InstallCliOptions {
   all?: boolean;
   global?: boolean;
   local?: boolean;
+  noCursorNative?: boolean;
 }
 
 /**

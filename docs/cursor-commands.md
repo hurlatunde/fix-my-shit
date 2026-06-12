@@ -1,32 +1,81 @@
 # Fix My Shit (fms) — Cursor slash commands and terminal parity
 
-All fms commands can be run from the terminal. In Cursor, use the command palette or a terminal to run the equivalent. This document maps conceptual slash commands to terminal commands for full parity.
+All fms commands can be run from the terminal. On **Cursor** installs, the installer also registers native slash commands, subagents, and an overview skill in Cursor Settings.
 
-## Command mapping
+## Slash command names
 
-| Slash / usage              | Terminal command                    |
-|----------------------------|-------------------------------------|
-| `/fms:install`             | `fms install` or `npx fix-my-shit`  |
-| `/fms:new-project`         | `fms new-project`                   |
-| `/fms:new-project --prd X` | `fms new-project --prd <path>`      |
-| `/fms:discuss-phase N`     | `fms discuss-phase <phase>`         |
-| `/fms:plan-phase N`        | `fms plan-phase <phase>`            |
-| `/fms:execute-phase N`     | `fms execute-phase <phase>`         |
-| `/fms:verify-work N`       | `fms verify-work <phase>`           |
-| `/fms:complete-phase`      | `fms complete-phase`               |
-| `/fms:complete-milestone`  | `fms complete-milestone`            |
-| `/fms:quick`               | `fms quick`                        |
-| `/fms:quick "task desc"`   | `fms quick "task description"`      |
-| `/fms:status`              | `fms status`                       |
-| `/fms:config`              | `fms config`                       |
-| `/fms:config --set-global`| `fms config --set-global`          |
-| `/fms:config --set-local` | `fms config --set-local`           |
-| `/fms:help [cmd]`          | `fms help [command]`                |
+Cursor slash commands use the **filename** under `.cursor/commands/` (or `~/.cursor/commands/` for global installs):
+
+| Slash in Cursor           | Terminal command                   |
+| ------------------------- | ---------------------------------- |
+| `/fms-install`            | `fms install` or `npx fix-my-shit` |
+| `/fms-new-project`        | `fms new-project`                  |
+| `/fms-discuss-phase`      | `fms discuss-phase <phase>`        |
+| `/fms-plan-phase`         | `fms plan-phase <phase>`           |
+| `/fms-execute-phase`      | `fms execute-phase <phase>`        |
+| `/fms-verify-work`        | `fms verify-work <phase>`          |
+| `/fms-complete-phase`     | `fms complete-phase`               |
+| `/fms-complete-milestone` | `fms complete-milestone`           |
+| `/fms-map-codebase`       | (workflow only — see below)        |
+| `/fms-quick`              | `fms quick`                        |
+| `/fms-status`             | `fms status`                       |
+| `/fms-config`             | `fms config`                       |
+| `/fms-help`               | `fms help [command]`               |
+| `/fms-index-codebase`     | `fms index-codebase`               |
+| `/fms-query`              | `fms query "question"`             |
+| `/fms-refresh-codebase`   | `fms refresh-codebase`             |
+
+Older docs used a colon form (`/fms:help`). Native Cursor commands use hyphens (`/fms-help`).
+
+## What the installer registers (Cursor only)
+
+| Cursor Settings | Install path                                 | Contents                                 |
+| --------------- | -------------------------------------------- | ---------------------------------------- |
+| Subagents       | `.cursor/agents/` or `~/.cursor/agents/`     | Copies of `fms-*.md` from the fms bundle |
+| Commands        | `.cursor/commands/` or `~/.cursor/commands/` | One `fms-*.md` per command               |
+| Skills          | `.cursor/skills/fms/SKILL.md`                | Overview skill for discovery             |
+
+The fms bundle itself remains at `.cursor/fms/` (workflows, templates, research, hooks).
+
+Skip native registration with:
+
+```bash
+npx fix-my-shit@latest install --cursor --local --no-cursor-native
+```
+
+After install, reload the Cursor window so Settings picks up new files.
+
+## Workflow vs CLI routing
+
+Slash commands use two strategies:
+
+**Workflow-primary** (agent reads `.cursor/fms/workflows/` and spawns subagents):
+
+- `/fms-map-codebase`, `/fms-new-project`, `/fms-discuss-phase`, `/fms-plan-phase`, `/fms-execute-phase`, `/fms-verify-work`, `/fms-quick`
+
+**CLI-primary** (agent runs `fms …` in the terminal):
+
+- `/fms-status`, `/fms-config`, `/fms-help`, `/fms-install`, `/fms-index-codebase`, `/fms-query`, `/fms-refresh-codebase`, `/fms-complete-phase`, `/fms-complete-milestone`
+
+Heavy AI work (mapping, planning, executing plans) is implemented as **workflows + subagents**. The CLI still provides scaffolding, state updates, RAG utilities, and alternate paths for some commands.
 
 ## How to run in Cursor
 
-1. **Terminal:** Open the integrated terminal and run any `fms <command>` (or `npx fix-my-shit` with no args to run the installer).
-2. **Command palette:** Use Cursor’s command palette to run a terminal command (e.g. “Run task” or “Terminal: Run command”) and enter the fms command.
-3. **Slash commands:** If you have a Cursor rule or extension that maps `/fms:quick` to “run `fms quick` in terminal”, use that. Otherwise, run the terminal command from the table above.
+1. **Slash commands:** Type `/` and choose an `fms-*` command from the menu (after install + reload).
+2. **Terminal:** Run any `fms <command>` in the integrated terminal.
+3. **Subagents:** Invoke `fms-planner`, `fms-executor`, etc. from the subagent picker or via workflow orchestration.
 
-All functionality is available from the CLI; there is no separate Cursor-only API. Use the terminal (or a task that runs these commands) for full parity.
+## Install flags
+
+```bash
+npx fix-my-shit@latest install --cursor --global
+npx fix-my-shit@latest install --claude --local
+npx fix-my-shit@latest install --all --global
+npx fix-my-shit@latest install --cursor --local --no-cursor-native
+```
+
+Runtime flags: `--cursor`, `--claude`, `--opencode`, `--gemini`, `--codex`, `--copilot`, `--antigravity`, `--all`
+
+Location flags: `--global` / `-g`, `--local` / `-l`
+
+Opt-out: `--no-cursor-native` (Cursor only — keeps `.cursor/fms/` without touching agents/commands/skills)
