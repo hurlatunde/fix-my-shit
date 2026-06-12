@@ -21,16 +21,21 @@ function getPhaseRequirementIds(roadmapContent: string, phaseNum: number): strin
     .filter((s) => /^[A-Z]+-\d+$/.test(s));
 }
 
-function getPlanListFromRoadmap(roadmapContent: string, phaseNum: number): { id: string; desc: string }[] {
+function getPlanListFromRoadmap(
+  roadmapContent: string,
+  phaseNum: number
+): { id: string; desc: string }[] {
   const section = roadmapContent.match(
     new RegExp(`### Phase ${phaseNum}:[\\s\\S]*?(?=\\n### Phase \\d|\\n## [^#]|$)`, 'i')
   );
   if (!section) return [];
   const lines = section[0].match(/^-\s+\[\s?[x ]?\s?\]\s+(\d+-\d+):\s*(.+)$/gm) || [];
-  return lines.map((line) => {
-    const m = line.match(/(\d+-\d+):\s*(.+)$/);
-    return m ? { id: m[1], desc: m[2].trim() } : { id: '', desc: '' };
-  }).filter((p) => p.id);
+  return lines
+    .map((line) => {
+      const m = line.match(/(\d+-\d+):\s*(.+)$/);
+      return m ? { id: m[1], desc: m[2].trim() } : { id: '', desc: '' };
+    })
+    .filter((p) => p.id);
 }
 
 export function generatePlansForPhase(fmsRoot: string, phaseNum: number): void {
@@ -110,10 +115,6 @@ ${plan.desc}
 - [ ] Tasks complete
 </verification>
 `;
-    fs.writeFileSync(
-      path.join(phaseDir, `${padded}-${planNum}-PLAN.md`),
-      frontmatter,
-      'utf-8'
-    );
+    fs.writeFileSync(path.join(phaseDir, `${padded}-${planNum}-PLAN.md`), frontmatter, 'utf-8');
   });
 }

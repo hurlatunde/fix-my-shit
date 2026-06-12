@@ -46,7 +46,8 @@ function parseStatusInfo(statePath: string): StatusInfo {
 export async function runStatuslineHook(stage: HookStage, ctx: HookContext): Promise<void> {
   // Only run after major workflow commands.
   if (stage !== 'after') return;
-  if (!['new-project', 'plan-phase', 'execute-phase', 'verify-work', 'quick'].includes(ctx.command)) return;
+  if (!['new-project', 'plan-phase', 'execute-phase', 'verify-work', 'quick'].includes(ctx.command))
+    return;
 
   const base = getPhaseBase(ctx.fmsRoot);
   const statePath = path.join(base, 'STATE.md');
@@ -78,13 +79,11 @@ export async function runStatuslineHook(stage: HookStage, ctx: HookContext): Pro
   const prefix = chalk.cyan('[fms]');
   const line = parts.length ? parts.join(' — ') : `Command "${ctx.command}" completed.`;
 
-  // eslint-disable-next-line no-console
   console.log(prefix, line);
 
   if (info.lastActivity) {
     const secondary = chalk.dim(`Last activity: ${info.lastActivity}`);
-    // eslint-disable-next-line no-console
+
     console.log(secondary);
   }
 }
-

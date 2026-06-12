@@ -75,9 +75,9 @@ export async function runStatus(fmsRoot: string): Promise<void> {
 
   if (!projectTitle && !state.phaseLine && !state.plansLine) {
     // Fallback: show root when no planning artifacts exist yet.
-    // eslint-disable-next-line no-console
+
     console.log(prefix, `No PROJECT/ROADMAP/STATE found under ${base}.`);
-    // eslint-disable-next-line no-console
+
     console.log(chalk.dim('Run `fms new-project` to initialize planning artifacts.'));
     return;
   }
@@ -86,7 +86,7 @@ export async function runStatus(fmsRoot: string): Promise<void> {
   const milestoneLabel = state.milestone ? ` — Milestone ${state.milestone}` : '';
 
   // First line: project + milestone.
-  // eslint-disable-next-line no-console
+
   console.log(prefix, `Project: ${projectLabel}${milestoneLabel}`);
 
   const parts: string[] = [];
@@ -101,13 +101,10 @@ export async function runStatus(fmsRoot: string): Promise<void> {
   }
 
   if (parts.length) {
-    // eslint-disable-next-line no-console
     console.log(parts.join(' — '));
   }
 
   if (state.lastActivity) {
-    // eslint-disable-next-line no-console
     console.log(chalk.dim(`Last activity: ${state.lastActivity}`));
   }
 }
-

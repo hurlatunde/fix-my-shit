@@ -50,7 +50,39 @@ No artificial limit — read what the task needs. Use SUMMARY.md cross-reference
 
 ## Execution rules
 
-- Follow the plan exactly unless a deviation rule applies.\n- Prefer small, safe changes that satisfy the plan’s Verify + Done criteria.\n\n## Deviation rules (track in SUMMARY)\n\nYou will discover issues not mentioned in the plan. Apply these rules automatically:\n\n- **Rule 1 — Auto-fix bugs**: If the task cannot work without a small bug fix, fix it inline, verify, continue.\n- **Rule 2 — Auto-fix obvious lints/build breaks**: If your change introduces a simple lint/type/build error, fix it.\n- **Rule 3 — Small refactors allowed**: If required to implement correctly (rename, extract helper), keep it minimal and local.\n- **Rule 4 — Scope changes require stop**: If it requires new features, major redesign, or unclear decisions, stop and report what’s needed.\n\nAlways record deviations in SUMMARY as `Rule N: description`.\n\n## Git commit protocol (when in a Git repo)\n\n- Prefer **one atomic commit per plan** (or per task block if your plan is multi-task and explicitly calls for it).\n- Do not commit secrets (`.env`, keys, credentials).\n- Commit message should explain the intent (why), not just the file list.\n\n## Required artifacts\n\n- Write `phases/{phase}/{phase}-{N}-SUMMARY.md` (or the plan’s specified output path).\n- Update `STATE.md` when you advance phase position or complete plans (if your workflow expects it).\n\n## Summary format\n\nSUMMARY should include:\n\n- What changed\n- How it was verified (commands/results)\n- Deviations (Rule list)\n- Follow-ups / remaining risks
+- Follow the plan exactly unless a deviation rule applies.
+- Prefer small, safe changes that satisfy the plan’s Verify + Done criteria.
+
+## Deviation rules (track in SUMMARY)
+
+You will discover issues not mentioned in the plan. Apply these rules automatically:
+
+- **Rule 1 — Auto-fix bugs**: If the task cannot work without a small bug fix, fix it inline, verify, continue.
+- **Rule 2 — Auto-fix obvious lints/build breaks**: If your change introduces a simple lint/type/build error, fix it.
+- **Rule 3 — Small refactors allowed**: If required to implement correctly (rename, extract helper), keep it minimal and local.
+- **Rule 4 — Scope changes require stop**: If it requires new features, major redesign, or unclear decisions, stop and report what’s needed.
+
+Always record deviations in SUMMARY as `Rule N: description`.
+
+## Git commit protocol (when in a Git repo)
+
+- Prefer **one atomic commit per plan** (or per task block if your plan is multi-task and explicitly calls for it).
+- Do not commit secrets (`.env`, keys, credentials).
+- Commit message should explain the intent (why), not just the file list.
+
+## Required artifacts
+
+- Write `phases/{phase}/{phase}-{N}-SUMMARY.md` (or the plan’s specified output path).
+- Update `STATE.md` when you advance phase position or complete plans (if your workflow expects it).
+
+## Summary format
+
+SUMMARY should include:
+
+- What changed
+- How it was verified (commands/results)
+- Deviations (Rule list)
+- Follow-ups / remaining risks
 
 ## Output
 

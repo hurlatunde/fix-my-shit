@@ -30,16 +30,12 @@ async function getExtractor(): Promise<any> {
   if (!transformers) {
     throw new Error(
       'Embedding library not found. Install one of:\n' +
-      '  npm install @huggingface/transformers\n' +
-      '  npm install @xenova/transformers'
+        '  npm install @huggingface/transformers\n' +
+        '  npm install @xenova/transformers'
     );
   }
 
-  pipelineInstance = await transformers.pipeline(
-    'feature-extraction',
-    MODEL_ID,
-    { dtype: 'fp32' }
-  );
+  pipelineInstance = await transformers.pipeline('feature-extraction', MODEL_ID, { dtype: 'fp32' });
   return pipelineInstance;
 }
 
@@ -50,7 +46,10 @@ export async function embed(text: string, task: EmbedTask = 'search_document'): 
   return Array.from(output.data as Float32Array);
 }
 
-export async function embedBatch(texts: string[], task: EmbedTask = 'search_document'): Promise<number[][]> {
+export async function embedBatch(
+  texts: string[],
+  task: EmbedTask = 'search_document'
+): Promise<number[][]> {
   const results: number[][] = [];
   for (const text of texts) {
     results.push(await embed(text, task));

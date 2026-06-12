@@ -23,7 +23,10 @@ export function getDeliverablesForPhase(fmsRoot: string, phaseNum: number): Deli
 
   const content = fs.readFileSync(roadmapPath, 'utf-8');
   const section = content.match(
-    new RegExp(`### Phase ${phaseNum}:\\s*[^\\n]+\\n([\\s\\S]*?)(?=\\n### Phase \\d|\\n## [^#]|$)`, 'i')
+    new RegExp(
+      `### Phase ${phaseNum}:\\s*[^\\n]+\\n([\\s\\S]*?)(?=\\n### Phase \\d|\\n## [^#]|$)`,
+      'i'
+    )
   );
   if (!section) return [];
 
@@ -35,7 +38,12 @@ export function getDeliverablesForPhase(fmsRoot: string, phaseNum: number): Deli
     const list = criteriaBlock[0].match(/\d+\.\s+[^\n]+/g) || [];
     list.forEach((line, i) => {
       const desc = line.replace(/^\d+\.\s*/, '').trim();
-      if (desc) deliverables.push({ id: `criterion-${i + 1}`, description: desc, source: 'ROADMAP Success Criteria' });
+      if (desc)
+        deliverables.push({
+          id: `criterion-${i + 1}`,
+          description: desc,
+          source: 'ROADMAP Success Criteria',
+        });
     });
   }
 

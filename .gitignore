@@ -29,6 +29,5 @@ coverage
 /.agent
 /.claude
 /.codex
-/.github
 /.opencode
 /codebase

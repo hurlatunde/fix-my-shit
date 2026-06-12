@@ -35,7 +35,10 @@ const FOCUS_DOC_MAP: Record<FocusArea, string[]> = {
 };
 
 const PATH_TO_FOCUS: Array<{ pattern: RegExp; focus: FocusArea }> = [
-  { pattern: /package\.json|requirements\.txt|Cargo\.toml|go\.mod|pyproject\.toml|\.nvmrc/, focus: 'tech' },
+  {
+    pattern: /package\.json|requirements\.txt|Cargo\.toml|go\.mod|pyproject\.toml|\.nvmrc/,
+    focus: 'tech',
+  },
   { pattern: /\.(env|config)\b/, focus: 'tech' },
   { pattern: /tsconfig|eslint|prettier|biome/, focus: 'quality' },
   { pattern: /\.test\.|\.spec\.|__tests__|jest\.config|vitest\.config/, focus: 'quality' },
@@ -48,7 +51,11 @@ function getMetaPath(codebaseDir: string): string {
 
 function getCurrentGitCommit(cwd: string): string | null {
   try {
-    return execSync('git rev-parse HEAD', { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    return execSync('git rev-parse HEAD', {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
   } catch {
     return null;
   }
@@ -56,7 +63,11 @@ function getCurrentGitCommit(cwd: string): string | null {
 
 function isGitRepo(cwd: string): boolean {
   try {
-    execSync('git rev-parse --is-inside-work-tree', { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
+    execSync('git rev-parse --is-inside-work-tree', {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
     return true;
   } catch {
     return false;
@@ -168,7 +179,13 @@ export function detectDrift(codebaseDir: string): DriftResult {
     const commitsBehind = getCommitCountSince(meta.gitCommit, projectRoot);
 
     if (changedFiles.length === 0) {
-      return { hasDrift: false, changedFiles: [], affectedFocusAreas: [], commitsBehind: 0, isGitRepo: true };
+      return {
+        hasDrift: false,
+        changedFiles: [],
+        affectedFocusAreas: [],
+        commitsBehind: 0,
+        isGitRepo: true,
+      };
     }
 
     return {
@@ -194,7 +211,13 @@ export function detectDrift(codebaseDir: string): DriftResult {
     };
   }
 
-  return { hasDrift: false, changedFiles: [], affectedFocusAreas: [], commitsBehind: 0, isGitRepo: false };
+  return {
+    hasDrift: false,
+    changedFiles: [],
+    affectedFocusAreas: [],
+    commitsBehind: 0,
+    isGitRepo: false,
+  };
 }
 
 export function getFocusDocuments(focus: FocusArea): string[] {

@@ -2,7 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 
-import { detectDrift, readMeta, writeMeta, getFocusDocuments, type FocusArea } from '../rag/meta.js';
+import {
+  detectDrift,
+  readMeta,
+  writeMeta,
+  getFocusDocuments,
+  type FocusArea,
+} from '../rag/meta.js';
 import { isEmbeddingAvailable } from '../rag/embedder.js';
 import { buildIndex, writeIndex } from '../rag/indexer.js';
 
@@ -61,12 +67,19 @@ export async function runRefreshCodebase(codebaseDir: string): Promise<void> {
   }
 
   console.log();
-  console.log(chalk.white('  To refresh, re-run the map-codebase workflow with these focus areas.'));
-  console.log(chalk.white('  The workflow agents will re-analyze the codebase and update documents.\n'));
+  console.log(
+    chalk.white('  To refresh, re-run the map-codebase workflow with these focus areas.')
+  );
+  console.log(
+    chalk.white('  The workflow agents will re-analyze the codebase and update documents.\n')
+  );
 
   console.log('  Options:');
   console.log(chalk.cyan('    map-codebase'), '       — Re-run full codebase mapping');
-  console.log(chalk.cyan('    fms index-codebase'), '— Rebuild RAG index from existing documents\n');
+  console.log(
+    chalk.cyan('    fms index-codebase'),
+    '— Rebuild RAG index from existing documents\n'
+  );
 
   const available = await isEmbeddingAvailable();
   if (available) {
@@ -87,9 +100,7 @@ export async function runRefreshCodebase(codebaseDir: string): Promise<void> {
   console.log();
   console.log(
     chalk.yellow('Note:'),
-    'The RAG index is rebuilt from existing documents, but the documents themselves',
+    'The RAG index is rebuilt from existing documents, but the documents themselves'
   );
-  console.log(
-    '  may be stale. Re-run the map-codebase workflow to fully refresh the analysis.'
-  );
+  console.log('  may be stale. Re-run the map-codebase workflow to fully refresh the analysis.');
 }

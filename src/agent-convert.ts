@@ -86,7 +86,11 @@ const claudeToOpencodeTools: Record<string, string> = {
   TodoWrite: 'todowrite',
 };
 
-function mapToolList(tools: string[], mapping: Record<string, string>, { dropUnknown = false } = {}): string[] {
+function mapToolList(
+  tools: string[],
+  mapping: Record<string, string>,
+  { dropUnknown = false } = {}
+): string[] {
   const out: string[] = [];
   for (const t of tools) {
     if (mapping[t]) out.push(mapping[t]);
@@ -126,17 +130,18 @@ export function convertAgentMarkdownForRuntime(content: string, runtime: Runtime
   if (runtime === 'gemini' || runtime === 'antigravity') {
     // Gemini requires tools as YAML array of supported built-ins; drop unknown tools.
     const mapped = mapToolList(tools, claudeToGeminiTools, { dropUnknown: true });
-    const fmLines: string[] = [
-      '---',
-      `name: ${name}`,
-      `description: ${description}`,
-    ];
+    const fmLines: string[] = ['---', `name: ${name}`, `description: ${description}`];
     if (mapped.length > 0) {
       fmLines.push('tools:');
       for (const t of mapped) fmLines.push(` - ${t}`);
     }
     fmLines.push('---');
-    return { filename: `${name}.md`, content: fmLines.join('\n') + '\n\n' + body, name, description };
+    return {
+      filename: `${name}.md`,
+      content: fmLines.join('\n') + '\n\n' + body,
+      name,
+      description,
+    };
   }
 
   if (runtime === 'opencode') {
@@ -154,7 +159,10 @@ export function convertAgentMarkdownForRuntime(content: string, runtime: Runtime
 
   if (runtime === 'cursor' || runtime === 'claude' || runtime === 'codex') {
     // Claude/Cursor-style: keep tools as comma-separated list.
-    const mapped = runtime === 'claude' || runtime === 'cursor' || runtime === 'codex' ? tools : mapToolList(tools, claudeToOpencodeTools);
+    const mapped =
+      runtime === 'claude' || runtime === 'cursor' || runtime === 'codex'
+        ? tools
+        : mapToolList(tools, claudeToOpencodeTools);
     const toolsLine = mapped.length > 0 ? `tools: ${mapped.join(', ')}` : '';
     const fm =
       `---\n` +
@@ -213,7 +221,10 @@ export function generateCodexAgentToml(agentName: string, agentMarkdown: string)
   ].join('\n');
 }
 
-export function mergeCodexConfigToml(existing: string | null, agents: Array<{ name: string; description: string }>): string {
+export function mergeCodexConfigToml(
+  existing: string | null,
+  agents: Array<{ name: string; description: string }>
+): string {
   const blockLines: string[] = [CODEX_MARKER, ''];
   for (const a of agents) {
     blockLines.push(`[agents.${a.name}]`);
@@ -239,4 +250,3 @@ export function mergeCodexConfigToml(existing: string | null, agents: Array<{ na
 export function getCodexConfigMarker(): string {
   return CODEX_MARKER;
 }
-

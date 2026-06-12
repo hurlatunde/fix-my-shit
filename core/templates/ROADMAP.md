@@ -1,15 +1,40 @@
-# Roadmap
+# Roadmap: ${PROJECT_NAME}
 
-**Milestone:** (current milestone name)
+## Overview
+
+Phases derived from requirements. Update as needed.
 
 ## Phases
 
-| # | Phase | Status |
-|---|-------|--------|
-| 01 | (Phase title) | pending |
-| ... | | |
+- [ ] **Phase 1: (Title)** — (one-line goal)
+- [ ] **Phase 2: (Title)** — (one-line goal)
+- [ ] **Phase 3: (Title)** — (one-line goal)
 
-**Requirements:** (map from REQUIREMENTS.md)
+## Phase Details
+
+### Phase 1: (Title)
+
+**Goal**: (Outcome-shaped goal for this phase)
+
+**Requirements**: (map from REQUIREMENTS.md — requirement IDs)
+
+**Success Criteria**: (define per phase)
+
+### Phase 2: (Title)
+
+**Goal**:
+
+**Requirements**:
+
+**Success Criteria**:
+
+## Progress
+
+| Phase      | Status      |
+| ---------- | ----------- |
+| 1. (Title) | Not started |
+| 2. (Title) | Not started |
 
 ---
-See: PROJECT.md
+
+_Reference shape: matches `generateRoadmapAndState` in `fms new-project`. Replace placeholder phases with your milestone._

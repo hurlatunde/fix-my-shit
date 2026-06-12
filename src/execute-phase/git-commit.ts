@@ -22,12 +22,20 @@ export function commitPlanFiles(
     return { success: false, error: 'No files to add' };
   }
   for (const file of filesToAdd) {
-    const add = spawnSync('git', ['add', file], { cwd, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] });
+    const add = spawnSync('git', ['add', file], {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
     if (add.status !== 0) {
       return { success: false, error: add.stderr?.trim() || 'git add failed' };
     }
   }
-  const commit = spawnSync('git', ['commit', '-m', message], { cwd, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const commit = spawnSync('git', ['commit', '-m', message], {
+    cwd,
+    encoding: 'utf-8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
   if (commit.status !== 0) {
     return { success: false, error: commit.stderr?.trim() || 'git commit failed' };
   }
@@ -36,8 +44,9 @@ export function commitPlanFiles(
 
 /**
  * Build commit message for a plan. shortDesc from objective or planId.
+ * Subject prefix `fms:` keeps workflow commits filterable (e.g. git log --grep=fms:).
  */
 export function planCommitMessage(phaseNum: number, planId: string, shortDesc: string): string {
   const desc = shortDesc.slice(0, 60).replace(/\n/g, ' ');
-  return `gsd: phase ${phaseNum} plan ${planId} — ${desc}`;
+  return `fms: phase ${phaseNum} plan ${planId} — ${desc}`;
 }

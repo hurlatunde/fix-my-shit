@@ -21,7 +21,13 @@ function getPhaseRequirementIds(roadmapContent: string, phaseNum: number): strin
     .filter((s) => /^[A-Z]+-\d+$/.test(s));
 }
 
-function parseFrontmatter(content: string): { requirements?: string[]; phase?: string; plan?: string; wave?: number; must_haves?: unknown } {
+function parseFrontmatter(content: string): {
+  requirements?: string[];
+  phase?: string;
+  plan?: string;
+  wave?: number;
+  must_haves?: unknown;
+} {
   const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
   if (!match) return {};
   const block = match[1];
@@ -70,7 +76,8 @@ export function checkPlansForPhase(
     if (!fm.phase) issues.push(`${file}: missing frontmatter 'phase'`);
     if (!fm.plan) issues.push(`${file}: missing frontmatter 'plan'`);
     if (fm.wave == null) issues.push(`${file}: missing frontmatter 'wave'`);
-    if (!fm.requirements || fm.requirements.length === 0) issues.push(`${file}: missing or empty 'requirements'`);
+    if (!fm.requirements || fm.requirements.length === 0)
+      issues.push(`${file}: missing or empty 'requirements'`);
     if (!fm.must_haves) issues.push(`${file}: missing 'must_haves'`);
     (fm.requirements || []).forEach((id: string) => coveredIds.add(id));
   }

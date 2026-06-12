@@ -2,17 +2,25 @@ import fs from 'fs';
 import path from 'path';
 import inquirer from 'inquirer';
 import { runQuestioning } from '../new-project/questioning.js';
-import { generateProjectMdFromAnswers, generateProjectMdFromPrd } from '../new-project/project-md.js';
+import {
+  generateProjectMdFromAnswers,
+  generateProjectMdFromPrd,
+} from '../new-project/project-md.js';
 import { runResearch } from '../new-project/research.js';
 import { generateRequirementsMd } from '../new-project/requirements.js';
 import { generateRoadmapAndState, promptApproval } from '../new-project/roadmap.js';
 
-export async function runNewProject(fmsRoot: string, options?: { prdPath?: string }): Promise<void> {
+export async function runNewProject(
+  fmsRoot: string,
+  options?: { prdPath?: string }
+): Promise<void> {
   fs.mkdirSync(fmsRoot, { recursive: true });
 
   let projectMdWritten = false;
   if (options?.prdPath) {
-    const fullPath = path.isAbsolute(options.prdPath) ? options.prdPath : path.join(process.cwd(), options.prdPath);
+    const fullPath = path.isAbsolute(options.prdPath)
+      ? options.prdPath
+      : path.join(process.cwd(), options.prdPath);
     const content = fs.readFileSync(fullPath, 'utf-8');
     generateProjectMdFromPrd(content, fmsRoot);
     projectMdWritten = true;

@@ -31,12 +31,14 @@ ${escapeMd(coreValue)}
 
 ### Out of Scope
 
-${(answers.outOfScope || 'None defined yet.')
-  .split(/[,;]/)
-  .map((s) => s.trim())
-  .filter(Boolean)
-  .map((s) => `- ${s}`)
-  .join('\n') || '- None defined yet'}
+${
+  (answers.outOfScope || 'None defined yet.')
+    .split(/[,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => `- ${s}`)
+    .join('\n') || '- None defined yet'
+}
 
 ## Context
 
@@ -60,7 +62,11 @@ ${escapeMd(answers.constraints) || 'No additional context.'}
   fs.writeFileSync(outPath, content, 'utf-8');
 }
 
-export function generateProjectMdFromPrd(prdContent: string, fmsRoot: string, projectName?: string): void {
+export function generateProjectMdFromPrd(
+  prdContent: string,
+  fmsRoot: string,
+  projectName?: string
+): void {
   const name = projectName || extractTitle(prdContent) || 'Project';
   const outPath = path.join(fmsRoot, 'PROJECT.md');
   fs.mkdirSync(fmsRoot, { recursive: true });

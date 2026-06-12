@@ -107,9 +107,11 @@ export function generateRequirementsMd(fmsRoot: string): void {
   lines.push('');
   lines.push('## Out of Scope');
   lines.push('');
-  byCategory['general']?.filter((c) => c.tier === 'out').forEach((c) => {
-    lines.push(`- ${c.text}`);
-  });
+  byCategory['general']
+    ?.filter((c) => c.tier === 'out')
+    .forEach((c) => {
+      lines.push(`- ${c.text}`);
+    });
   if (!byCategory['general']?.some((c) => c.tier === 'out')) {
     lines.push('- None defined.');
   }

@@ -49,9 +49,7 @@ export function loadConfig(fmsRoot: string): FmsConfig {
 }
 
 function stripJsonComments(str: string): string {
-  return str
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\/\/.*/g, '');
+  return str.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*/g, '');
 }
 
 function deepMerge<T extends object>(base: T, override: Partial<T> | undefined): T {
@@ -60,8 +58,18 @@ function deepMerge<T extends object>(base: T, override: Partial<T> | undefined):
   for (const key of Object.keys(override) as (keyof T)[]) {
     const b = (base as Record<keyof T, unknown>)[key];
     const o = (override as Record<keyof T, unknown>)[key];
-    if (o != null && typeof o === 'object' && !Array.isArray(o) && typeof b === 'object' && b != null && !Array.isArray(b)) {
-      (result as Record<keyof T, unknown>)[key] = deepMerge(b as object, o as Record<string, unknown>) as T[keyof T];
+    if (
+      o != null &&
+      typeof o === 'object' &&
+      !Array.isArray(o) &&
+      typeof b === 'object' &&
+      b != null &&
+      !Array.isArray(b)
+    ) {
+      (result as Record<keyof T, unknown>)[key] = deepMerge(
+        b as object,
+        o as Record<string, unknown>
+      ) as T[keyof T];
     } else if (o !== undefined) {
       (result as Record<keyof T, unknown>)[key] = o;
     }

@@ -49,8 +49,7 @@ export async function runContextMonitorHook(stage: HookStage, ctx: HookContext):
 
   if (!phase.currentPhase || !phase.totalPhases || !phase.totalPlansInPhase) return;
 
-  const remaining =
-    phase.totalPlansInPhase - (phase.plansCompleted ?? 0);
+  const remaining = phase.totalPlansInPhase - (phase.plansCompleted ?? 0);
   const parallel = config.parallelization || config.workflow?.auto_advance;
 
   if (remaining <= 0 && !parallel) return;
@@ -67,10 +66,10 @@ export async function runContextMonitorHook(stage: HookStage, ctx: HookContext):
     );
   }
   if (parallel) {
-    parts.push('Parallel execution is enabled; avoid cross-plan coupling to stay within context limits.');
+    parts.push(
+      'Parallel execution is enabled; avoid cross-plan coupling to stay within context limits.'
+    );
   }
 
-  // eslint-disable-next-line no-console
   console.log(prefix, parts.join(' '));
 }
-

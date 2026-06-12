@@ -1,0 +1,8 @@
+{
+  // workflow mode override
+  "mode": "interactive",
+  "commit_docs": false,
+  "workflow": {
+    "research": false
+  }
+}

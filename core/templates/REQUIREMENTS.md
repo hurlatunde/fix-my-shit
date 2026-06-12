@@ -1,21 +1,31 @@
 # Requirements
 
+**Defined:** (date)
+
 **Core Value:** (See PROJECT.md)
 
-## Phase traceability
+_Default shape after `fms new-project`: dated line, v1 items with `**PREFIX-NN**` IDs, traceability table updated when roadmap is generated._
 
-| Req ID | Description | Phase |
-|--------|-------------|-------|
-| (map from phases) | | |
+## v1 Requirements
 
-## v1 (Must-have)
+### General
 
-- (Extract from PROJECT.md and research)
+- [ ] **GEN-01**: (First must-have from PROJECT.md Active or research)
 
-## v2 (Nice-to-have)
+(Add more subsections as needed — category headers map to ID prefixes in `requirements.ts`, e.g. General → GEN; unknown categories → REQ.)
 
-- (Defer to later milestone)
+## v2 Requirements
 
-## Out of scope
+(Deferred — add when scoping.)
 
-- (From PROJECT.md)
+## Out of Scope
+
+- None defined.
+
+## Traceability
+
+| Requirement | Phase     | Status  |
+| ----------- | --------- | ------- |
+| GEN-01      | Phase TBD | Pending |
+
+---

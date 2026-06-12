@@ -40,7 +40,11 @@ export async function runQueryCodebase(codebaseDir: string, question: string): P
     const r = results[i];
     const scoreStr = r.score.toFixed(2);
     const sourceFile = path.basename(r.source);
-    const preview = r.content.split('\n').filter((l) => l.trim()).slice(0, 3).join('\n    ');
+    const preview = r.content
+      .split('\n')
+      .filter((l) => l.trim())
+      .slice(0, 3)
+      .join('\n    ');
 
     console.log(
       chalk.green(`${i + 1}.`),

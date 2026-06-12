@@ -3,6 +3,7 @@ import path from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import chalk from 'chalk';
+import { compareVersions } from '../lib/version.js';
 import type { HookContext, HookStage } from './index.js';
 
 const execFileAsync = promisify(execFile);
@@ -65,24 +66,11 @@ async function fetchLatestVersionFromNpm(): Promise<string | null> {
   }
 }
 
-function compareVersions(a: string, b: string): number {
-  const pa = a.split('.').map((x) => parseInt(x, 10) || 0);
-  const pb = b.split('.').map((x) => parseInt(x, 10) || 0);
-  const len = Math.max(pa.length, pb.length);
-  for (let i = 0; i < len; i++) {
-    const va = pa[i] ?? 0;
-    const vb = pb[i] ?? 0;
-    if (va > vb) return 1;
-    if (va < vb) return -1;
-  }
-  return 0;
-}
-
 function maybePrintUpgradeMessage(installed: string, latest: string): void {
   if (compareVersions(latest, installed) <= 0) return;
   const prefix = chalk.yellow('[fms update]');
   // Keep this short and non-fatal.
-  // eslint-disable-next-line no-console
+
   console.log(
     prefix,
     `A newer version of fix-my-shit is available (${installed} → ${latest}). Consider running`,
@@ -116,4 +104,3 @@ export async function runUpdateCheckHook(stage: HookStage, ctx: HookContext): Pr
 
   maybePrintUpgradeMessage(installed, cache.latestVersion);
 }
-

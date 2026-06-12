@@ -1,5 +1,7 @@
 # Research Summary
 
+**Minimum bar before planning:** Executive summary filled; pointers to STACK, ARCHITECTURE, FEATURES, and PITFALLS validated (no empty “TBD only” stubs).
+
 **Researched:** (date)
 
 ## Summary

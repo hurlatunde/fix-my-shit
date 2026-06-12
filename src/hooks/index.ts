@@ -28,7 +28,11 @@ export interface HookContext {
 function logHookError(hookName: string, stage: HookStage, err: unknown): void {
   const prefix = chalk.dim('[fms:hook]');
   const message =
-    err instanceof Error ? `${err.name}: ${err.message}` : typeof err === 'string' ? err : 'Unknown error';
+    err instanceof Error
+      ? `${err.name}: ${err.message}`
+      : typeof err === 'string'
+        ? err
+        : 'Unknown error';
   // Hooks must never break primary command flows; log and continue.
   console.warn(prefix, `Hook "${hookName}" (${stage}) failed:`, message);
 }
@@ -76,10 +80,7 @@ export async function runLifecycleHooks(stage: HookStage, ctx: HookContext): Pro
   );
 }
 
-export async function withHooks<T>(
-  ctx: HookContext,
-  run: () => Promise<T>
-): Promise<T> {
+export async function withHooks<T>(ctx: HookContext, run: () => Promise<T>): Promise<T> {
   await runLifecycleHooks('before', ctx);
   try {
     return await run();
@@ -87,4 +88,3 @@ export async function withHooks<T>(
     await runLifecycleHooks('after', ctx);
   }
 }
-

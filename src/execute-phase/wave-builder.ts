@@ -6,7 +6,15 @@ export interface PlanInfo {
   id: string;
   wave: number;
   path: string;
-  frontmatter: { phase?: string; plan?: string; wave?: number; depends_on?: string[]; requirements?: string[]; files_modified?: string[]; objective?: string };
+  frontmatter: {
+    phase?: string;
+    plan?: string;
+    wave?: number;
+    depends_on?: string[];
+    requirements?: string[];
+    files_modified?: string[];
+    objective?: string;
+  };
 }
 
 function parseFrontmatter(content: string): Record<string, unknown> {

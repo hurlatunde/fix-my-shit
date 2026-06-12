@@ -16,13 +16,14 @@ import { runIndexCodebase } from './commands/index-codebase.js';
 import { runQueryCodebase } from './commands/query-codebase.js';
 import { runRefreshCodebase } from './commands/refresh-codebase.js';
 import { withHooks } from './hooks/index.js';
+import { getPackageVersion } from './lib/version.js';
 
 const program = new Command();
 
 program
   .name('fix-my-shit')
   .description('Structured workflow assistant for Cursor — phased project management')
-  .version('1.0.0');
+  .version(getPackageVersion());
 
 program
   .command('install')
@@ -39,20 +40,22 @@ program
   .option('-g', 'Install globally')
   .option('--local', 'Install locally')
   .option('-l', 'Install locally')
-  .action(async (opts: {
-    cursor?: boolean;
-    claude?: boolean;
-    opencode?: boolean;
-    gemini?: boolean;
-    codex?: boolean;
-    copilot?: boolean;
-    antigravity?: boolean;
-    all?: boolean;
-    global?: boolean;
-    local?: boolean;
-  }) => {
-    await runInstall(opts);
-  });
+  .action(
+    async (opts: {
+      cursor?: boolean;
+      claude?: boolean;
+      opencode?: boolean;
+      gemini?: boolean;
+      codex?: boolean;
+      copilot?: boolean;
+      antigravity?: boolean;
+      all?: boolean;
+      global?: boolean;
+      local?: boolean;
+    }) => {
+      await runInstall(opts);
+    }
+  );
 
 program
   .command('new-project')
@@ -60,9 +63,8 @@ program
   .option('--prd <path>', 'Use PRD/spec file instead of questioning')
   .action(async (opts: { prd?: string }) => {
     const root = resolveFmsRoot();
-    await withHooks(
-      { fmsRoot: root, command: 'new-project' },
-      async () => runNewProject(root, opts.prd ? { prdPath: opts.prd } : undefined)
+    await withHooks({ fmsRoot: root, command: 'new-project' }, async () =>
+      runNewProject(root, opts.prd ? { prdPath: opts.prd } : undefined)
     );
   });
 

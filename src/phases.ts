@@ -20,7 +20,10 @@ const FALLBACK_SLUGS: Record<number, string> = {
   6: 'polish',
 };
 
-export function getPhaseDir(fmsRoot: string, phaseNum: number): { phaseDir: string; padded: string; slug: string } {
+export function getPhaseDir(
+  fmsRoot: string,
+  phaseNum: number
+): { phaseDir: string; padded: string; slug: string } {
   const padded = String(phaseNum).padStart(2, '0');
   let slug = FALLBACK_SLUGS[phaseNum];
   const roadmapPath = path.join(fmsRoot, 'ROADMAP.md');
@@ -28,12 +31,13 @@ export function getPhaseDir(fmsRoot: string, phaseNum: number): { phaseDir: stri
     const content = fs.readFileSync(roadmapPath, 'utf-8');
     const phaseSection = content.match(new RegExp(`### Phase ${phaseNum}:\\s*(.+?)(?=\\n|$)`, 'i'));
     if (phaseSection) {
-      slug = phaseSection[1]
-        .trim()
-        .toLowerCase()
-        .replace(/\s*-\s*.*$/, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '') || slug;
+      slug =
+        phaseSection[1]
+          .trim()
+          .toLowerCase()
+          .replace(/\s*-\s*.*$/, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '') || slug;
     }
   } catch {
     // use fallback

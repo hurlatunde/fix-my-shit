@@ -15,7 +15,11 @@ export function writePlanSummary(phaseDir: string, planId: string, content: stri
 /**
  * Build minimal summary content for a completed plan (stub or from execution result).
  */
-export function buildStubSummary(planId: string, objective: string, requirements: string[]): string {
+export function buildStubSummary(
+  planId: string,
+  objective: string,
+  requirements: string[]
+): string {
   const [phase, plan] = planId.split('-');
   const stamp = new Date().toISOString().slice(0, 10);
   const lines = [

@@ -22,13 +22,19 @@ export function generateRoadmapAndState(fmsRoot: string): void {
 
   const titleMatch = projectContent.match(/^#\s+(.+)$/m);
   const name = titleMatch ? titleMatch[1].trim() : 'Project';
-  const reqIdMatches = requirementsContent.match(/\*\*(GEN|INST|PROJ|CONF|CURS|DISC|PLAN|EXEC|VERI|QUIK)-\d+\*\*/g) || [];
+  const reqIdMatches =
+    requirementsContent.match(/\*\*(GEN|INST|PROJ|CONF|CURS|DISC|PLAN|EXEC|VERI|QUIK)-\d+\*\*/g) ||
+    [];
   const reqIds = [...new Set(reqIdMatches.map((s) => s.replace(/\*\*/g, '')))];
 
   const phaseCount = 6;
   const phases = [
     { num: 1, name: 'Foundation', goal: 'Installer, path resolution, config' },
-    { num: 2, name: 'New Project', goal: 'new-project flow: questions, research, requirements, roadmap' },
+    {
+      num: 2,
+      name: 'New Project',
+      goal: 'new-project flow: questions, research, requirements, roadmap',
+    },
     { num: 3, name: 'Discuss & Plan', goal: 'discuss-phase, plan-phase' },
     { num: 4, name: 'Execute & Verify', goal: 'execute-phase, verify-work, complete' },
     { num: 5, name: 'Quick Mode & Cursor', goal: 'quick mode, Cursor integration' },
@@ -87,7 +93,10 @@ export function generateRoadmapAndState(fmsRoot: string): void {
   updateRequirementsTraceability(fmsRoot, phases);
 }
 
-function updateRequirementsTraceability(fmsRoot: string, phases: { num: number; name: string }[]): void {
+function updateRequirementsTraceability(
+  fmsRoot: string,
+  phases: { num: number; name: string }[]
+): void {
   const reqPath = path.join(fmsRoot, 'REQUIREMENTS.md');
   let content = '';
   try {
@@ -95,7 +104,8 @@ function updateRequirementsTraceability(fmsRoot: string, phases: { num: number; 
   } catch {
     return;
   }
-  const idMatches = content.match(/\*\*(GEN|INST|PROJ|CONF|CURS|DISC|PLAN|EXEC|VERI|QUIK)-\d+\*\*/g) || [];
+  const idMatches =
+    content.match(/\*\*(GEN|INST|PROJ|CONF|CURS|DISC|PLAN|EXEC|VERI|QUIK)-\d+\*\*/g) || [];
   const ids = [...new Set(idMatches.map((s) => s.replace(/\*\*/g, '')))];
   const traceSection = [
     '## Traceability',
@@ -138,7 +148,7 @@ export async function promptApproval(fmsRoot: string): Promise<void> {
     },
   ]);
   if (action === 'approve') {
-    console.log('Roadmap approved. Next: /gsd:discuss-phase 1 or /gsd:plan-phase 1');
+    console.log('Roadmap approved. Next: /fms:discuss-phase 1 or /fms:plan-phase 1');
   } else if (action === 'edit') {
     console.log('Edit ROADMAP.md and REQUIREMENTS.md as needed, then run `fms new-project` again.');
   } else {

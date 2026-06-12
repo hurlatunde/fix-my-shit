@@ -10,7 +10,9 @@ export function generatePhaseResearch(fmsRoot: string, phaseNum: number): void {
   let goal = '';
   try {
     const content = fs.readFileSync(roadmapPath, 'utf-8');
-    const m = content.match(new RegExp(`### Phase ${phaseNum}:[^\\n]+\\n\\*\\*Goal\\*\\*:\\s*([^\\n]+)`, 'i'));
+    const m = content.match(
+      new RegExp(`### Phase ${phaseNum}:[^\\n]+\\n\\*\\*Goal\\*\\*:\\s*([^\\n]+)`, 'i')
+    );
     if (m) goal = m[1].trim();
   } catch {
     goal = 'Phase goal from ROADMAP';

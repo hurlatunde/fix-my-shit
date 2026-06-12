@@ -80,7 +80,8 @@ function slugify(text: string): string {
 }
 
 export async function buildIndex(codebaseDir: string): Promise<RAGIndex> {
-  const files = fs.readdirSync(codebaseDir)
+  const files = fs
+    .readdirSync(codebaseDir)
     .filter((f) => f.endsWith('.md'))
     .map((f) => path.join(codebaseDir, f))
     .sort();

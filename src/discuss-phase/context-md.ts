@@ -30,7 +30,7 @@ export function writeContextMd(
     lines.push(value);
     lines.push('');
   }
-  lines.push('### Claude\'s Discretion');
+  lines.push("### Claude's Discretion");
   lines.push('');
   lines.push('Areas not discussed — use standard approaches.');
   lines.push('');

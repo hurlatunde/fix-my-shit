@@ -13,14 +13,16 @@ export async function queryIndex(
   indexPath: string,
   query: string,
   topK = 5,
-  threshold = 0.3,
+  threshold = 0.3
 ): Promise<SearchResult[]> {
   const index = readIndex(indexPath);
 
   if (index.version < 2) {
     throw new Error(
-      'RAG index was built with an older model (version ' + index.version + ').\n' +
-      'Re-run `fms index-codebase` to rebuild with the current model.'
+      'RAG index was built with an older model (version ' +
+        index.version +
+        ').\n' +
+        'Re-run `fms index-codebase` to rebuild with the current model.'
     );
   }
 

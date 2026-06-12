@@ -4,7 +4,11 @@ import { getPhaseBase, getPhaseDir } from '../phases.js';
 import { loadConfig } from '../config.js';
 import { getPlansForPhase } from '../execute-phase/wave-builder.js';
 import { writePlanSummary, buildStubSummary } from '../execute-phase/summary-writer.js';
-import { isInsideGitRepo, commitPlanFiles, planCommitMessage } from '../execute-phase/git-commit.js';
+import {
+  isInsideGitRepo,
+  commitPlanFiles,
+  planCommitMessage,
+} from '../execute-phase/git-commit.js';
 import { updateStateAfterPlan } from '../execute-phase/state-updater.js';
 
 export async function runExecutePhase(fmsRoot: string, phaseNum: number): Promise<void> {
@@ -63,7 +67,8 @@ export async function runExecutePhase(fmsRoot: string, phaseNum: number): Promis
         const msg = planCommitMessage(phaseNum, plan.id, objective);
         const result = commitPlanFiles(process.cwd(), phaseNum, plan.id, toAdd, msg);
         if (result.success) console.log('Committed:', plan.id);
-        else if (result.error && !result.error.includes('nothing to commit')) console.log('Commit skip:', result.error);
+        else if (result.error && !result.error.includes('nothing to commit'))
+          console.log('Commit skip:', result.error);
       }
 
       plansCompleted++;

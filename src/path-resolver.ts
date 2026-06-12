@@ -10,7 +10,8 @@ export interface FmsPrefs {
 
 function prefsPath(cwd: string, scope: 'local' | 'global'): string {
   const home = os.homedir();
-  const dir = scope === 'local' ? path.join(cwd, '.cursor', 'fms') : path.join(home, '.cursor', 'fms');
+  const dir =
+    scope === 'local' ? path.join(cwd, '.cursor', 'fms') : path.join(home, '.cursor', 'fms');
   return path.join(dir, PREFS_FILE);
 }
 
@@ -39,7 +40,8 @@ export function readPrefs(cwd?: string): FmsPrefs {
 export function writePrefs(prefer: 'global' | 'local', cwd?: string): void {
   const start = cwd ?? process.cwd();
   const home = os.homedir();
-  const dir = prefer === 'local' ? path.join(start, '.cursor', 'fms') : path.join(home, '.cursor', 'fms');
+  const dir =
+    prefer === 'local' ? path.join(start, '.cursor', 'fms') : path.join(home, '.cursor', 'fms');
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, PREFS_FILE);
   fs.writeFileSync(file, JSON.stringify({ prefer }, null, 2), 'utf-8');

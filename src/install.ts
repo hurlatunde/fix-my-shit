@@ -3,7 +3,6 @@ import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { getFmsStructure } from './structure.js';
@@ -24,25 +23,22 @@ import {
   getGlobalRoot,
   getLocalRoot,
 } from './runtime-paths.js';
-
-const require = createRequire(import.meta.url);
-const art = require('ascii-art');
+import { getPackageVersion } from './lib/version.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CORE_ROOT = path.join(__dirname, 'core');
 
-const FMS_VERSION = '1.0.1';
 const PATCHES_DIR_NAME = 'fms-local-patches';
 const MANIFEST_NAME = 'fms-file-manifest.json';
 const FMS_DESCRIPTION =
   'Structured workflow assistant for Cursor — phased project management and issue resolution by Hurlatunde.';
 
-const FMS_ASCII_ART_FALLBACK = `
-█████████  ██    ██   ███████
-██         ████  ██   ██
-█████      ██ ██ ██   ███████
-██         ██  ████   ██
-██         ██    ██   ███████
+const FMS_ASCII_ART = `
+███████  ██   ██  ███████
+██       ███ ███  ██
+█████    ██ █ ██  ███████
+██       ██   ██       ██
+██       ██   ██  ███████
 `.trim();
 
 function formatDisplayRoot(root: string): string {
@@ -69,12 +65,7 @@ function formatDisplayRoot(root: string): string {
 }
 
 async function renderFmsBanner(): Promise<string> {
-  try {
-    const rendered = await art.font('FMS', 'Doom');
-    return typeof rendered === 'string' ? rendered : FMS_ASCII_ART_FALLBACK;
-  } catch {
-    return FMS_ASCII_ART_FALLBACK;
-  }
+  return FMS_ASCII_ART;
 }
 
 async function promptLocation(runtime: Runtime): Promise<LocationChoice> {
@@ -122,7 +113,9 @@ async function promptRuntime(): Promise<Runtime | 'all'> {
 /**
  * Resolve install targets from CLI options; prompt for runtime and location when not specified.
  */
-export async function resolveInstallTargets(opts: InstallCliOptions = {}): Promise<InstallTarget[]> {
+export async function resolveInstallTargets(
+  opts: InstallCliOptions = {}
+): Promise<InstallTarget[]> {
   const { runtimes: fromArgs, location: locationFromArgs } = parseInstallArgs(opts);
 
   let runtimes: Runtime[];
@@ -161,12 +154,7 @@ function isTextFile(name: string): boolean {
  * Recursively copy directory from src to dest, applying minimal templating for text files.
  * Replaces ${FMS_RUNTIME} and ${FMS_ROOT} with runtime and fmsRoot.
  */
-function copyDir(
-  src: string,
-  dest: string,
-  runtime: Runtime,
-  fmsRoot: string
-): void {
+function copyDir(src: string, dest: string, runtime: Runtime, fmsRoot: string): void {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
 
@@ -232,7 +220,10 @@ function writeAgentsForRuntime(target: InstallTarget): void {
 
   // Clean any existing generated agents to avoid stale files
   for (const entry of fs.readdirSync(outDir)) {
-    if (entry.startsWith('fms-') && (entry.endsWith('.md') || entry.endsWith('.agent.md') || entry.endsWith('.toml'))) {
+    if (
+      entry.startsWith('fms-') &&
+      (entry.endsWith('.md') || entry.endsWith('.agent.md') || entry.endsWith('.toml'))
+    ) {
       fs.rmSync(path.join(outDir, entry), { force: true });
     }
   }
@@ -290,10 +281,10 @@ function collectManifest(root: string): Record<string, string> {
   return result;
 }
 
-function writeManifest(fmsRoot: string): string {
+function writeManifest(fmsRoot: string, version: string): string {
   const files = collectManifest(fmsRoot);
   const manifest = {
-    version: FMS_VERSION,
+    version,
     timestamp: new Date().toISOString(),
     files,
   };
@@ -340,7 +331,11 @@ function saveLocalPatches(fmsRoot: string): string[] {
     fs.writeFileSync(
       metaPath,
       JSON.stringify(
-        { fromVersion: prev.version ?? 'unknown', files: modified, backedUpAt: new Date().toISOString() },
+        {
+          fromVersion: prev.version ?? 'unknown',
+          files: modified,
+          backedUpAt: new Date().toISOString(),
+        },
         null,
         2
       ),
@@ -374,7 +369,8 @@ export function installForRuntime(target: InstallTarget): InstallResult {
   created.push(fmsRoot);
 
   populateFmsRootForRuntime(target, created);
-  fs.writeFileSync(path.join(fmsRoot, 'VERSION'), FMS_VERSION + '\n', 'utf-8');
+  const version = getPackageVersion();
+  fs.writeFileSync(path.join(fmsRoot, 'VERSION'), version + '\n', 'utf-8');
   fs.writeFileSync(
     path.join(fmsRoot, 'package.json'),
     JSON.stringify(
@@ -384,7 +380,7 @@ export function installForRuntime(target: InstallTarget): InstallResult {
     ),
     'utf-8'
   );
-  writeManifest(fmsRoot);
+  writeManifest(fmsRoot, version);
 
   for (const dir of ['templates', 'workflows', 'agents', 'research', 'hooks']) {
     const full = path.join(fmsRoot, dir);
@@ -429,27 +425,32 @@ export function installForRuntime(target: InstallTarget): InstallResult {
 }
 
 export async function runInstall(opts: InstallCliOptions = {}): Promise<void> {
+  const version = getPackageVersion();
   const bannerArt = await renderFmsBanner();
   console.log('\n' + chalk.cyan(bannerArt) + '\n');
-  console.log(chalk.cyan.bold('Fix My Shit') + chalk.gray(' v' + FMS_VERSION));
+  console.log(chalk.cyan.bold('Fix My Shit') + chalk.gray(' v' + version));
   console.log(chalk.gray(FMS_DESCRIPTION) + '\n');
 
   const targets = await resolveInstallTargets(opts);
 
   if (targets.length > 0) {
     const locationLabel = targets[0].location === 'global' ? 'Global' : 'Local';
-    const runtimeLabels = targets.map((t) => t.runtime.charAt(0).toUpperCase() + t.runtime.slice(1)).join(', ');
+    const runtimeLabels = targets
+      .map((t) => t.runtime.charAt(0).toUpperCase() + t.runtime.slice(1))
+      .join(', ');
     console.log(chalk.gray(`[selected: ${locationLabel} for ${runtimeLabels}]\n`));
   }
 
   for (const target of targets) {
     const { runtime, location, root: fmsRoot } = target;
-    console.log(chalk.cyan(`\n  Installing for ${runtime} (${location}) at ${formatDisplayRoot(fmsRoot)}\n`));
+    console.log(
+      chalk.cyan(`\n  Installing for ${runtime} (${location}) at ${formatDisplayRoot(fmsRoot)}\n`)
+    );
 
     const result = installForRuntime(target);
 
     step('Populated templates, workflows, agents, hooks, research');
-    step('Wrote VERSION (' + FMS_VERSION + ')');
+    step('Wrote VERSION (' + version + ')');
     step('Wrote package.json');
     step('Wrote file manifest (fms-file-manifest.json)');
     step(`Finished ${runtime} (${location})`);

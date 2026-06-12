@@ -203,18 +203,18 @@ Compares the current git HEAD against the last mapping commit. If files have cha
 
 The assistant is much more effective when it has the right context. fms handles that for you:
 
-| File / folder     | What it does |
-|-------------------|--------------|
+| File / folder     | What it does                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------ |
 | `codebase/`       | 9 structured analysis documents — tech, architecture, symbols, conventions, concerns |
-| `PROJECT.md`      | Project vision, always loaded |
-| `research/`       | Ecosystem knowledge (stack, features, architecture, pitfalls) |
-| `REQUIREMENTS.md` | Scoped v1/v2 requirements with phase traceability |
-| `ROADMAP.md`      | Where you're going, what's done |
-| `STATE.md`        | Decisions, blockers, position — memory across sessions |
-| `CONTEXT.md`      | Locked decisions, discretion areas, deferred ideas for a phase |
-| `PLAN.md`         | Atomic task with YAML frontmatter, goal-backward must_haves, and structured tasks |
-| `SUMMARY.md`      | What happened, what changed, committed to history |
-| `quick/`          | Ad-hoc task plans and summaries |
+| `PROJECT.md`      | Project vision, always loaded                                                        |
+| `research/`       | Ecosystem knowledge (stack, features, architecture, pitfalls)                        |
+| `REQUIREMENTS.md` | Scoped v1/v2 requirements with phase traceability                                    |
+| `ROADMAP.md`      | Where you're going, what's done                                                      |
+| `STATE.md`        | Decisions, blockers, position — memory across sessions                               |
+| `CONTEXT.md`      | Locked decisions, discretion areas, deferred ideas for a phase                       |
+| `PLAN.md`         | Atomic task with YAML frontmatter, goal-backward must_haves, and structured tasks    |
+| `SUMMARY.md`      | What happened, what changed, committed to history                                    |
+| `quick/`          | Ad-hoc task plans and summaries                                                      |
 
 Size and structure are tuned so context stays useful. Stay within them for consistent results.
 
@@ -234,13 +234,13 @@ Precise instructions and verification are built in.
 
 Each stage uses the same idea: a thin orchestrator spawns specialized agents, collects results, and passes work to the next step.
 
-| Stage      | Orchestrator | Agents |
-|------------|--------------|--------|
-| Codebase mapping | Creates structure, verifies output | 4 parallel mappers (tech, arch, quality, concerns) + 1 sequential summarizer |
-| Research   | Coordinates, presents findings | Parallel researchers (stack, features, architecture, pitfalls) |
-| Planning   | Validates, manages iteration | Researcher investigates domain, planner creates plans, plan-checker verifies (7 dimensions), revision loop (max 3x) |
-| Execution  | Groups into waves, tracks progress | Executors implement (parallel where possible), fresh context per plan |
-| Verification | Presents results, routes next | Verifier checks codebase against goals, debuggers diagnose failures |
+| Stage            | Orchestrator                       | Agents                                                                                                              |
+| ---------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Codebase mapping | Creates structure, verifies output | 4 parallel mappers (tech, arch, quality, concerns) + 1 sequential summarizer                                        |
+| Research         | Coordinates, presents findings     | Parallel researchers (stack, features, architecture, pitfalls)                                                      |
+| Planning         | Validates, manages iteration       | Researcher investigates domain, planner creates plans, plan-checker verifies (7 dimensions), revision loop (max 3x) |
+| Execution        | Groups into waves, tracks progress | Executors implement (parallel where possible), fresh context per plan                                               |
+| Verification     | Presents results, routes next      | Verifier checks codebase against goals, debuggers diagnose failures                                                 |
 
 The orchestrator doesn't do the heavy work. It spawns agents and integrates results. You can run a full phase — research, multiple plans, verification — and your main session stays responsive.
 
@@ -278,15 +278,15 @@ On first run, fms asks **which runtime(s)** you want to install for and whether 
 
 ### Supported runtimes and locations
 
-| Runtime     | Global path                    | Local path (project)   |
-|------------|--------------------------------|------------------------|
-| Cursor     | `~/.cursor/fms`                | `./.cursor/fms`        |
-| Claude Code| `~/.claude/fms`                | `./.claude/fms`        |
-| OpenCode   | `~/.config/opencode/fms`       | `./.opencode/fms`      |
-| Gemini     | `~/.gemini/fms`                | `./.gemini/fms`        |
-| Codex      | `~/.codex/fms`                 | `./.codex/fms`         |
-| Copilot    | `~/.copilot/fms`               | `./.github/fms`        |
-| Antigravity| `~/.gemini/antigravity/fms`    | `./.agent/fms`         |
+| Runtime     | Global path                 | Local path (project) |
+| ----------- | --------------------------- | -------------------- |
+| Cursor      | `~/.cursor/fms`             | `./.cursor/fms`      |
+| Claude Code | `~/.claude/fms`             | `./.claude/fms`      |
+| OpenCode    | `~/.config/opencode/fms`    | `./.opencode/fms`    |
+| Gemini      | `~/.gemini/fms`             | `./.gemini/fms`      |
+| Codex       | `~/.codex/fms`              | `./.codex/fms`       |
+| Copilot     | `~/.copilot/fms`            | `./.github/fms`      |
+| Antigravity | `~/.gemini/antigravity/fms` | `./.agent/fms`       |
 
 ### Install flags
 
@@ -319,24 +319,24 @@ If you edit installed agents locally and reinstall, your modified versions are b
 
 ## CLI Reference
 
-| Command | Description |
-|---------|-------------|
-| `fms install` | Install fms to selected runtime(s) |
+| Command                          | Description                                                         |
+| -------------------------------- | ------------------------------------------------------------------- |
+| `fms install`                    | Install fms to selected runtime(s)                                  |
 | `fms new-project [--prd <path>]` | Start a new project (questions → research → requirements → roadmap) |
-| `fms map-codebase` | Analyze codebase with parallel mapper agents (9 documents) |
-| `fms discuss-phase <N>` | Clarify gray areas for a phase |
-| `fms plan-phase <N>` | Generate executable plans for a phase |
-| `fms execute-phase <N>` | Run all plans in a phase (wave-based) |
-| `fms verify-work <N>` | Manually verify phase deliverables |
-| `fms complete-phase` | Mark current phase as done |
-| `fms complete-milestone` | Archive milestone and advance to next |
-| `fms quick ["task"]` | Quick ad-hoc task with fms guarantees |
-| `fms status` | Show current project/phase state |
-| `fms config` | Show or change install path preference |
-| `fms index-codebase` | Build RAG index from codebase analysis documents |
-| `fms query "question"` | Query the codebase RAG index |
-| `fms refresh-codebase` | Detect drift and rebuild RAG index |
-| `fms help [command]` | Display help for a command |
+| `fms map-codebase`               | Analyze codebase with parallel mapper agents (9 documents)          |
+| `fms discuss-phase <N>`          | Clarify gray areas for a phase                                      |
+| `fms plan-phase <N>`             | Generate executable plans for a phase                               |
+| `fms execute-phase <N>`          | Run all plans in a phase (wave-based)                               |
+| `fms verify-work <N>`            | Manually verify phase deliverables                                  |
+| `fms complete-phase`             | Mark current phase as done                                          |
+| `fms complete-milestone`         | Archive milestone and advance to next                               |
+| `fms quick ["task"]`             | Quick ad-hoc task with fms guarantees                               |
+| `fms status`                     | Show current project/phase state                                    |
+| `fms config`                     | Show or change install path preference                              |
+| `fms index-codebase`             | Build RAG index from codebase analysis documents                    |
+| `fms query "question"`           | Query the codebase RAG index                                        |
+| `fms refresh-codebase`           | Detect drift and rebuild RAG index                                  |
+| `fms help [command]`             | Display help for a command                                          |
 
 ---
 
@@ -352,10 +352,10 @@ If you edit installed agents locally and reinstall, your modified versions are b
 
 ## More detail
 
-- **`.planning/PROJECT.md`** — What fms is and who it's for  
-- **`.planning/ROADMAP.md`** — Phase breakdown and progress  
-- **`.planning/STATE.md`** — Current execution state  
-- **`docs/cursor-commands.md`** — Slash commands and terminal parity  
+- **`.planning/PROJECT.md`** — What fms is and who it's for
+- **`.planning/ROADMAP.md`** — Phase breakdown and progress
+- **`.planning/STATE.md`** — Current execution state
+- **`docs/cursor-commands.md`** — Slash commands and terminal parity
 
 ---
 

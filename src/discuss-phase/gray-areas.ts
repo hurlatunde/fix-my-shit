@@ -8,7 +8,9 @@ export function getGrayAreasForPhase(fmsRoot: string, phaseNum: number): string[
   const roadmapPath = path.join(fmsRoot, 'ROADMAP.md');
   try {
     const content = fs.readFileSync(roadmapPath, 'utf-8');
-    const phaseSection = content.match(new RegExp(`### Phase ${phaseNum}:[\\s\\S]*?(?=### Phase \\d|## [^#]|$)`, 'i'));
+    const phaseSection = content.match(
+      new RegExp(`### Phase ${phaseNum}:[\\s\\S]*?(?=### Phase \\d|## [^#]|$)`, 'i')
+    );
     if (phaseSection && phaseSection[0].includes('**Goal**')) {
       return DEFAULT_GRAY_AREAS;
     }

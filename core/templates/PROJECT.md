@@ -26,11 +26,16 @@
 
 (Additional context and constraints.)
 
+## Constraints
+
+- **Scope:** v1 as discussed; out of scope listed above.
+
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| (TBD) | — | — Pending |
+| Decision | Rationale | Outcome   |
+| -------- | --------- | --------- |
+| (TBD)    | —         | — Pending |
 
 ---
-*Last updated: (date) after new-project*
+
+_Reference shape: matches `fms new-project` output (`generateProjectMdFromAnswers`). Sections `### Active` and `### Out of Scope` are parsed when generating REQUIREMENTS.md._
